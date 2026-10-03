@@ -243,6 +243,22 @@ class ConsentTest(BrowserCase):
         self.assertIn("cmd_calc_result", sent)
         self.assertEqual(page.evaluate("dataLayer.filter(e => e && e[0] === 'config').length"), 1, "exactly one Google tag")
 
+    def test_campaign_memory_needs_consent_but_visit_stats_do_not(self):
+        page = self.new_page()
+        self.go(page, "/?utm_source=emailblaster&utm_medium=email&utm_campaign=consent-check")
+        self.assertIn("opt out", page.inner_text("#consent"))
+        self.assertIsNone(page.evaluate("localStorage.getItem('cmd-touch')"), "30-day campaign memory stored before consent")
+        attrib = json.loads(page.evaluate("sessionStorage.getItem('cmd-attrib')"))
+        self.assertEqual(attrib["campaign"], "consent-check", "this visit is still credited to the campaign")
+        page.click('[data-consent="yes"]')
+        touch = json.loads(page.evaluate("localStorage.getItem('cmd-touch')"))
+        self.assertEqual(touch["campaign"], "consent-check")
+        page.context.clear_cookies()
+        other = self.new_page()
+        self.go(other, "/?utm_source=emailblaster&utm_medium=email&utm_campaign=declined")
+        self.decline_cookies(other)
+        self.assertIsNone(other.evaluate("localStorage.getItem('cmd-touch')"), "stored after declining")
+
     def test_privacy_opt_out_stops_counting(self):
         page = self.new_page()
         self.go(page, "/privacy")

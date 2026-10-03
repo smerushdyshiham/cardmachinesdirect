@@ -360,6 +360,16 @@ class ContentQualityTest(unittest.TestCase):
                 with self.subTest(path=path, svg=svg[:80]):
                     self.assertTrue('aria-hidden="true"' in svg or ('role="img"' in svg and "aria-label=" in svg))
 
+    def test_company_details_on_every_page(self):
+        """Companies Act: name, number, place of registration and registered office on the website."""
+        for path, h in self.html.items():
+            with self.subTest(path=path):
+                for bit in ("ORDUGH FOODS LTD", "15815253", "England and Wales", "128 City Road", "EC1V 2NX"):
+                    self.assertIn(bit, h)
+        for path in ("/privacy", "/terms"):
+            with self.subTest(path=path):
+                self.assertNotIn("needs a final check", self.html[path])
+
     def test_internal_links_and_anchors_resolve(self):
         checked = {}
         for path, h in self.html.items():

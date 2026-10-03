@@ -10,10 +10,8 @@
 </header>
 <div class="wrap article-layout" style="grid-template-columns:minmax(0,1fr)">
   <article class="prose" data-section="terms-body">
-    <p><em>These terms need a final check by a solicitor before launch, including the company's legal name, registered number and registered address.</em></p>
-
     <h2 id="who">Who we are</h2>
-    <p>This site is run by Card Machines Direct ("we", "us"). You can contact us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>. By using the site, you agree to these terms.</p>
+    <p>This site is run by {{ company.name }}, trading as Card Machines Direct ("we", "us"). {{ company.name }} is a company registered in {{ company.registered_in }}, company number {{ company.number }}, with its registered office at {{ company.address }}. You can contact us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>. By using the site, you agree to these terms.</p>
 
     <h2 id="service">What we do</h2>
     <p>We compare card payment providers and match businesses to the cheapest option available to us for how they take payments. We're a broker, not a card payment provider. We don't process payments or hold your money.</p>

@@ -10,20 +10,18 @@
 </header>
 <div class="wrap article-layout" style="grid-template-columns:minmax(0,1fr)">
   <article class="prose" data-section="privacy-body">
-    <p><em>This notice needs a final check by whoever handles data protection for the business, including the company name, registered address and ICO registration number, before launch.</em></p>
-
     <h2 id="who">Who we are</h2>
-    <p>Card Machines Direct is responsible for the information collected on this site. Contact us about anything on this page at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+    <p>Card Machines Direct is a trading name of {{ company.name }}, a company registered in {{ company.registered_in }} (number {{ company.number }}), registered office {{ company.address }}. {{ company.name }} is responsible for (the "controller" of) the information collected on this site. Contact us about anything on this page at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
 
     <h2 id="quote">When you ask for a quote</h2>
-    <p>We collect what you type into the quote form and any statement you upload. We use it only to work out and send your quote, and to follow up on it. Statements are stored on our own server, are visible only to our team, and are deleted automatically {{ retention_days }} days after you send them, or sooner if you ask.</p>
+    <p>We collect what you type into the quote form and any statement you upload. We use it only to work out and send your quote, and to follow up on it. Statements are stored securely with our hosting provider, are visible only to our team, and are deleted automatically {{ retention_days }} days after you send them, or sooner if you ask.</p>
     <p>Our lawful basis is taking steps at your request before entering into a contract. We never sell your details.</p>
 
     <h2 id="calculator">The calculator</h2>
     <p>The numbers you put into the calculator are sent to our server to work out the estimate. We count how the calculator is used, for example which takings band people choose, but we don't link that to your name unless you then ask for a quote.</p>
 
     <h2 id="stats">Visit statistics</h2>
-    <p>We count visits to understand which pages help and where people get stuck: where you arrived from (for example an email we sent), which pages and sections you viewed, how long for, and whether you asked for a quote. This uses a random ID stored in your browser. It isn't used for advertising and isn't shared. {% if analytics_consent_required %}We only count your visits if you choose "That's fine" in the cookie message.{% endif %} Visit statistics are deleted automatically after {{ analytics_days }} days.</p>
+    <p>We count visits to understand which pages help and where people get stuck: where you arrived from (for example an email we sent), which pages and sections you viewed, how long for, and whether you asked for a quote. This uses a random ID stored in your browser. It isn't used for advertising and isn't shared. {% if analytics_consent_required %}We only count your visits if you choose "That's fine" in the cookie message.{% else %}UK law allows a website to collect statistics like these about its own use, to improve the site, without asking first, as long as it explains what it does and lets you object easily. That's what this section and the button below are for.{% endif %} Visit statistics are deleted automatically after {{ analytics_days }} days.</p>
     <p>You can switch this off for this browser at any time:</p>
     <p><button class="btn btn-ghost btn-sm" type="button" data-optout>Stop counting my visits</button></p>
 
@@ -38,7 +36,7 @@
       <tbody>
         <tr><td><code>cmd-consent</code></td><td>Remembers your answer to the cookie message.</td><td>Until you clear it</td></tr>
         <tr><td><code>cmd-vid</code>, <code>cmd-last</code></td><td>A random visitor ID and when you were last here, so repeat visits are counted once.</td><td>Until you clear it</td></tr>
-        <tr><td><code>cmd-touch</code></td><td>Where your last visit came from (for example one of our emails), so a quote request can be credited to it.</td><td>30 days</td></tr>
+        <tr><td><code>cmd-touch</code></td><td>Where your last visit came from (for example one of our emails), so a quote request can be credited to it. Only stored if you choose "That's fine".</td><td>30 days</td></tr>
         <tr><td><code>cmd-optout</code></td><td>Remembers that you've switched off visit counting.</td><td>Until you clear it</td></tr>
         <tr><td><code>cmd-sid</code>, <code>cmd-attrib</code></td><td>Groups the pages of one visit together.</td><td>This browser session</td></tr>
         <tr><td><code>cmd-calc</code>, <code>cmd-last-saving</code></td><td>Remembers what you put in the calculator, so you don't have to type it again on the quote form.</td><td>This browser session</td></tr>
@@ -46,6 +44,14 @@
     </table>
     </div>
     <p>Only if you choose "That's fine", we also load {% if ga4_id or gtm_id %}Google Analytics and {% endif %}our email platform's tracking code. These set their own cookies under their own privacy policies. If you choose "No thanks", they don't load at all.</p>
+
+    <h2 id="who-else">Who else handles your information</h2>
+    <ul>
+      <li><strong>Our hosting provider</strong> runs the website and stores quote requests, statements and visit statistics for us, on servers in Frankfurt, Germany (in the EU).</li>
+      <li><strong>Our email provider</strong> delivers the notification we receive when you ask for a quote.</li>
+      <li>{% if ga4_id or gtm_id %}<strong>Google Analytics</strong> and our{% else %}Our{% endif %} <strong>email platform</strong> only receive information if you choose "That's fine" in the cookie message.</li>
+    </ul>
+    <p>They only use it to provide their service to us. We never sell your details.</p>
 
     <h2 id="keep">How long we keep things</h2>
     <ul>

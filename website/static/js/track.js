@@ -52,7 +52,8 @@
     banner.hidden = true;
     if (choice.dataset.consent === "yes") {
       grantMarketing();
-      if (!allowed) { allowed = true; pending.splice(0).forEach((p) => store.set(...p)); onGrant.forEach((fn) => fn()); }
+      if (!allowed) { allowed = true; pending.splice(0).forEach((p) => store.set(...p)); }
+      onGrant.splice(0).forEach((fn) => fn());
     }
   });
 
@@ -87,7 +88,10 @@
     const fresh = readAttribution();
     if (fresh) {
       attrib = fresh;
-      keep("localStorage", "cmd-touch", JSON.stringify({ ...fresh, at: Date.now() }));
+      // Remembering the campaign for 30 days is marketing measurement, not site statistics: consent only.
+      const touch = JSON.stringify({ ...fresh, at: Date.now() });
+      if (consent === "yes") store.set("localStorage", "cmd-touch", touch);
+      else onGrant.push(() => store.set("localStorage", "cmd-touch", touch));
     } else {
       const prior = JSON.parse(store.get("localStorage", "cmd-touch") || "null");
       attrib = prior && Date.now() - prior.at < 30 * 864e5 ? { ...prior, returning: true } : { source: "direct", medium: "none", campaign: "" };

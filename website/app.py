@@ -36,6 +36,14 @@ UPLOADS = INSTANCE / "uploads"
 SNIPPETS = Path(os.environ.get("SNIPPETS_DIR", INSTANCE / "snippets"))
 PARTNERS_FILE = Path(os.environ.get("PARTNERS_FILE", INSTANCE / "partners.json"))
 
+# The legal entity behind the site. Companies Act rules require these on the website.
+COMPANY = {
+    "name": "ORDUGH FOODS LTD",
+    "number": "15815253",
+    "registered_in": "England and Wales",
+    "address": "128 City Road, London, United Kingdom, EC1V 2NX",
+}
+
 log = logging.getLogger("cmd")
 if not logging.getLogger().handlers:  # under gunicorn nothing is configured, so our messages would never reach the host's logs
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -93,6 +101,7 @@ def inject_globals():
         "gtm_id": app.config["GTM_ID"],
         "ga4_id": app.config["GA4_ID"],
         "contact_email": app.config["CONTACT_EMAIL"],
+        "company": COMPANY,
         "analytics_consent_required": app.config["ANALYTICS_CONSENT_REQUIRED"],
         "marketing_head": _snippet("head.html"),
         "marketing_body": _snippet("body_end.html"),
