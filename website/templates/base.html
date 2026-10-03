@@ -78,7 +78,7 @@
         </div>
       </div>
       <div class="footer-legal">
-        <span>© {{ year }} Card Machines Direct</span>
+        <span>© {{ year }} Card Machines Direct. Card Machines Direct is a trading name of {{ company.name }}, registered in {{ company.registered_in }}, company number {{ company.number }}. Registered office: {{ company.address }}.</span>
         <span><a href="{{ url_for('how_we_make_money') }}">How we make money</a> · <a href="{{ url_for('privacy') }}">Privacy and cookies</a> · <a href="{{ url_for('terms') }}">Terms</a></span>
       </div>
     </div>
@@ -86,9 +86,9 @@
 
   <div class="consent" id="consent" hidden role="region" aria-label="Cookie choice">
     {% if analytics_consent_required %}
-    <p>Can we count your visits so we can improve this site, and let our email partner's tracking run? Nothing is sold or used for ads. <a href="{{ url_for('privacy') }}#storage">Details</a></p>
+    <p>Can we count your visits so we can improve this site, and let {% if ga4_id or gtm_id %}Google Analytics and {% endif %}our email partner's tracking run? Nothing is sold or used for ads. <a href="{{ url_for('privacy') }}#storage">Details</a></p>
     {% else %}
-    <p>We count visits so we can improve this site. Nothing is sold or used for ads. Can our email partner's tracking run too? <a href="{{ url_for('privacy') }}#storage">Details</a></p>
+    <p>We count visits to improve this site. Nothing is sold or used for ads, and you can <a href="{{ url_for('privacy') }}#stats">opt out</a>. Can {% if ga4_id or gtm_id %}Google Analytics and {% endif %}our email partner's tracking run too? <a href="{{ url_for('privacy') }}#storage">Details</a></p>
     {% endif %}
     <div class="actions">
       <button class="btn btn-accent" type="button" data-consent="yes">That's fine</button>
