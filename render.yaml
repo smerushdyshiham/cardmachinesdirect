@@ -35,8 +35,8 @@ services:
         value: https://cardmachinesdirect.co.uk
       - key: FORCE_HTTPS
         value: "1"
-      - key: TRUSTED_PROXIES
-        value: "1"
+      - key: TRUSTED_PROXIES   # Render puts Cloudflare in front of its own proxy: visitor -> Cloudflare -> Render -> app
+        value: "2"
       - key: ADMIN_PASSWORD
         sync: false              # Render prompts for it; choose a long, unique password
       - key: CONTACT_EMAIL
