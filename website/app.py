@@ -17,8 +17,9 @@ from datetime import date, datetime, timezone
 from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
+from urllib.parse import urlparse
 
-from flask import (Flask, Response, abort, jsonify, redirect, render_template, request,
+from flask import (Flask, Response, abort, jsonify, make_response, redirect, render_template, request,
                    send_from_directory, url_for)
 from markupsafe import Markup
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
@@ -298,8 +299,10 @@ def quote():
         pass
 
     attrib = _attrib(form)
+    ours = internal_reason(form.get("auto"))
     lead_id = store.add_lead({
         **values,
+        "internal": 1 if ours else 0,
         "statement_file": stored_name,
         "statement_name": original_name,
         "session_id": form.get("sid", "")[:64],
@@ -310,8 +313,8 @@ def quote():
     if form.get("sid"):
         store.record({"sid": form["sid"][:64], "vid": form.get("vid"), "page": "/quote", "attrib": attrib,
                       "events": [{"type": "form_submit", "page": "/quote", "data": {"lead": lead_id}}]},
-                     request.headers.get("User-Agent", ""), trusted=True)
-    _notify(lead_id, values, original_name, attrib)
+                     request.headers.get("User-Agent", ""), trusted=True, internal_reason=ours)
+    _notify(lead_id, values, original_name, attrib, internal=bool(ours))
     return redirect(url_for("quote_thanks"))
 
 
@@ -403,7 +406,7 @@ def api_events():
     except ValueError:
         return "", 204
     if isinstance(payload, dict):
-        store.record(payload, request.headers.get("User-Agent", ""))
+        store.record(payload, request.headers.get("User-Agent", ""), internal_reason=internal_reason(payload.get("auto")))
     return "", 204
 
 
@@ -415,15 +418,35 @@ def admin_required(fn):
         auth = request.authorization
         if not pw or not auth or auth.username != user or not secrets.compare_digest(auth.password or "", pw):
             return Response("Sign in required.", 401, {"WWW-Authenticate": 'Basic realm="CMD admin"'})
-        return fn(*a, **kw)
+        resp = make_response(fn(*a, **kw))
+        # Opening the admin marks this browser as ours, so our own visits to the site don't count as real visitors.
+        resp.set_cookie(INTERNAL_COOKIE, "1", max_age=2 * 365 * 86400, secure=request.is_secure, httponly=True, samesite="Lax")
+        return resp
     return wrapper
+
+
+INTERNAL_COOKIE = "cmd_internal"
+
+
+def internal_reason(auto_flag=None) -> str | None:
+    """Why this request is our own traffic rather than a real visitor, or None if it looks real."""
+    if request.cookies.get(INTERNAL_COOKIE) == "1":
+        return "team browser"
+    ua = request.headers.get("User-Agent", "")
+    if str(auto_flag) in ("1", "true", "True") or "HeadlessChrome" in ua:
+        return "automated browser"  # e.g. Claude's checks; navigator.webdriver is set in automated browsers
+    if client_ip() in {ip.strip() for ip in os.environ.get("INTERNAL_IPS", "").split(",") if ip.strip()}:
+        return "office IP"
+    return None
 
 
 def _range():
     days = request.args.get("days", "30")
     days = int(days) if days.isdigit() and 0 < int(days) <= 365 else 30
     source = request.args.get("source") or None
-    return days, time.time() - days * 86400, source
+    audience = request.args.get("show", "real")
+    audience = audience if audience in ("real", "internal", "all") else "real"
+    return days, time.time() - days * 86400, source, audience
 
 
 STATEMENT_RETENTION_DAYS = int(os.environ.get("STATEMENT_RETENTION_DAYS", "90"))
@@ -451,18 +474,34 @@ def _housekeeping():
 @app.get("/admin/")
 @admin_required
 def admin_dashboard():
-    days, since, source = _range()
-    return render_template("admin/dashboard.html", r=store.report(since, source), days=days, source=source,
-                           sessions=store.recent_sessions(since, source, 40))
+    days, since, source, audience = _range()
+    return render_template("admin/dashboard.html", r=store.report(since, source, audience), days=days, source=source,
+                           show=audience, sessions=store.recent_sessions(since, source, 40, audience))
 
 
 @app.get("/admin/leads")
 @admin_required
 def admin_leads():
-    days, since, source = _range()
-    rows = store.leads(since, source)
-    return render_template("admin/leads.html", leads=rows, days=days, source=source,
-                           sources=store.report(since)["sources"])
+    days, since, source, audience = _range()
+    rows = store.leads(since, source, audience)
+    return render_template("admin/leads.html", leads=rows, days=days, source=source, show=audience,
+                           sources=store.report(since, audience="all")["sources"])
+
+
+@app.post("/admin/internal")
+@admin_required
+def admin_mark_internal():
+    """Mark or unmark a visit / lead as our own. Same-origin only: basic auth alone doesn't stop forged posts."""
+    origin = request.headers.get("Origin") or request.headers.get("Referer") or ""
+    if urlparse(origin).netloc != request.host:
+        abort(403)
+    internal = request.form.get("internal") == "1"
+    if request.form.get("lead_id", "").isdigit():
+        store.set_internal(lead_id=int(request.form["lead_id"]), internal=internal)
+    elif request.form.get("session_id"):
+        store.set_internal(session_id=request.form["session_id"][:64], internal=internal)
+    back = request.form.get("next", "")
+    return redirect(back if back.startswith("/admin") else url_for("admin_dashboard"))
 
 
 @app.get("/admin/journey/<sid>")
@@ -482,6 +521,7 @@ def admin_diagnostics():
         scheme=request.scheme, trusted_proxies=os.environ.get("TRUSTED_PROXIES", "1"),
         client_ip_header=os.environ.get("CLIENT_IP_HEADER"), headers={n: request.headers.get(n) for n in names},
         partners_file_found=PARTNERS_FILE.exists(), snippets=[n for n in ("head.html", "body_end.html") if (SNIPPETS / n).exists()],
+        this_browser_marked_internal=request.cookies.get(INTERNAL_COOKIE) == "1",
         instance_dir=str(INSTANCE), smtp_configured=bool(os.environ.get("SMTP_HOST") and os.environ.get("LEADS_EMAIL")),
     )
 
@@ -608,18 +648,18 @@ def _estimate_summary(est):
 _mailer = ThreadPoolExecutor(max_workers=2, thread_name_prefix="lead-mail")
 
 
-def _notify(lead_id, values, statement_name, attrib):
+def _notify(lead_id, values, statement_name, attrib, internal=False):
     if not os.environ.get("SMTP_HOST") or not os.environ.get("LEADS_EMAIL"):
         return None
-    msg = _lead_email(lead_id, values, statement_name, attrib)
+    msg = _lead_email(lead_id, values, statement_name, attrib, internal)
     return _mailer.submit(_send_email, msg, lead_id)
 
 
-def _lead_email(lead_id, values, statement_name, attrib) -> EmailMessage:
+def _lead_email(lead_id, values, statement_name, attrib, internal=False) -> EmailMessage:
     to = os.environ["LEADS_EMAIL"]
     msg = EmailMessage()
     business = " ".join(values["business"].split())  # no line breaks: they're not allowed in a subject
-    msg["Subject"] = f"New quote request #{lead_id}: {business}"[:200]
+    msg["Subject"] = f"{'[Internal] ' if internal else ''}New quote request #{lead_id}: {business}"[:200]
     msg["From"] = os.environ.get("SMTP_FROM") or os.environ.get("SMTP_USER") or to
     msg["To"] = to
     lines = [f"{k}: {v}" for k, v in values.items() if v]

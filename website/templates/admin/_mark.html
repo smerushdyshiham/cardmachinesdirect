@@ -1,0 +1,14 @@
+{# Badge plus a one-click toggle between "real visitor" and "internal" (you, Claude, tests). #}
+{% macro mark_form(session_id=none, lead_id=none, internal=0, reason=none) -%}
+<form method="post" action="{{ url_for('admin_mark_internal') }}" class="mark-form">
+  {% if lead_id is not none %}<input type="hidden" name="lead_id" value="{{ lead_id }}">{% else %}<input type="hidden" name="session_id" value="{{ session_id }}">{% endif %}
+  <input type="hidden" name="next" value="{{ request.full_path }}">
+  {% if internal %}
+  <span class="badge badge-internal" title="{{ reason or 'internal' }}">Internal{% if reason %} · {{ reason }}{% endif %}</span>
+  <input type="hidden" name="internal" value="0"><button type="submit" class="link-btn">Mark as real</button>
+  {% else %}
+  <span class="badge">Real</span>
+  <input type="hidden" name="internal" value="1"><button type="submit" class="link-btn">Mark as internal</button>
+  {% endif %}
+</form>
+{%- endmacro %}

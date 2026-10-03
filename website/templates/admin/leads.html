@@ -1,10 +1,11 @@
 {% extends "admin/base.html" %}
+{% from "admin/_mark.html" import mark_form %}
 {% block title %}Quote requests{% endblock %}
 {% block content %}
 <h1>Quote requests</h1>
 {% include "admin/_filters.html" %}
 <div class="scroll"><table>
-  <thead><tr><th>When</th><th>Who</th><th>Contact</th><th>Business</th><th>Now with</th><th>Knows fees?</th><th>Fees given</th><th class="n">Takings</th><th class="n">Est. saving</th><th>Statement</th><th>Came from</th></tr></thead>
+  <thead><tr><th>When</th><th>Who</th><th>Contact</th><th>Business</th><th>Now with</th><th>Knows fees?</th><th>Fees given</th><th class="n">Takings</th><th class="n">Est. saving</th><th>Statement</th><th>Came from</th><th>Visitor</th></tr></thead>
   <tbody>
   {% for l in leads %}
   {% set est = l.estimate|from_json if l.estimate else none %}
@@ -20,10 +21,11 @@
     <td class="n">{{ est.saving_monthly|gbp if est else '–' }}{% if est %}<br><span class="muted">vs {{ est.basis }}</span>{% endif %}</td>
     <td>{% if l.statement_file %}<a href="{{ url_for('admin_statement', lead_id=l.id) }}">Download</a>{% else %}–{% endif %}</td>
     <td>{{ l.source }} / {{ l.medium }}{% if l.campaign %}<br>{{ l.campaign }}{% endif %}{% if l.session_id %}<br><a href="{{ url_for('admin_journey', sid=l.session_id) }}">Journey</a>{% endif %}</td>
+    <td>{{ mark_form(lead_id=l.id, internal=l.internal) }}</td>
   </tr>
-  {% if l.message %}<tr><td></td><td colspan="10" class="muted">“{{ l.message }}”</td></tr>{% endif %}
+  {% if l.message %}<tr><td></td><td colspan="11" class="muted">“{{ l.message }}”</td></tr>{% endif %}
   {% else %}
-  <tr><td colspan="11" class="muted">No quote requests in this period.</td></tr>
+  <tr><td colspan="12" class="muted">No quote requests in this period.</td></tr>
   {% endfor %}
   </tbody>
 </table></div>

@@ -513,6 +513,11 @@ details.more .current-note { color: var(--ink); font-weight: 600; border-left: 3
 .funnel .f { display: grid; grid-template-columns: 11rem minmax(0, 1fr) 7rem; gap: var(--space-3); align-items: center; }
 .funnel .f i { display: block; height: 18px; background: var(--ink); border-radius: 0 4px 4px 0; min-width: 2px; }
 .funnel .f:last-child i { background: var(--accent); }
+.admin .admin-note { background: var(--accent-wash); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-5); }
+.admin .badge { display: inline-block; padding: 1px var(--space-2); border-radius: 999px; background: var(--line); font-size: 0.8em; font-weight: 600; white-space: nowrap; }
+.admin .badge-internal { background: var(--ink); color: var(--paper); }
+.admin .mark-form { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.admin .link-btn { font: inherit; font-size: 0.85em; background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; }
 .admin .tabs { display: flex; gap: var(--space-4); margin-top: var(--space-3); }
 .admin .tabs a[aria-current="page"] { font-weight: 800; }
 .admin .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }

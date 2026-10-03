@@ -69,6 +69,20 @@ CREATE TABLE IF NOT EXISTS leads (
 );
 """
 
+# Columns added after launch. Existing databases get them on startup (SQLite has no IF NOT EXISTS for columns).
+MIGRATIONS = [
+    ("sessions", "internal", "INTEGER DEFAULT 0"),   # 1 = our own visit (team browser or automated check)
+    ("sessions", "internal_reason", "TEXT"),
+    ("leads", "internal", "INTEGER DEFAULT 0"),
+]
+
+# Which visits a report covers: real visitors (default), our own, or everything.
+AUDIENCE_SQL = {"real": "COALESCE({p}internal, 0) = 0", "internal": "{p}internal = 1", "all": "1 = 1"}
+
+
+def audience_sql(audience: str, prefix: str = "") -> str:
+    return AUDIENCE_SQL.get(audience, "1 = 1").format(p=prefix)
+
 # Funnel flags a session can earn, keyed by the event that sets them.
 FLAG_FOR_EVENT = {
     "calc_change": "calc_used",
@@ -94,6 +108,9 @@ class Store:
         path.parent.mkdir(parents=True, exist_ok=True)
         with self.conn() as c:
             c.executescript(SCHEMA)
+            for table, column, decl in MIGRATIONS:
+                if column not in {r[1] for r in c.execute(f"PRAGMA table_info({table})")}:
+                    c.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
 
     @contextmanager
     def conn(self):
@@ -106,7 +123,7 @@ class Store:
             c.close()
 
     # ---- analytics ingest -------------------------------------------------
-    def record(self, payload: dict, user_agent: str = "", trusted: bool = False) -> None:
+    def record(self, payload: dict, user_agent: str = "", trusted: bool = False, internal_reason: str | None = None) -> None:
         """trusted=True only for server-side calls: conversions must not be forgeable via /api/events."""
         sid = _clip(payload.get("sid"), 64)
         if not sid:
@@ -151,23 +168,26 @@ class Store:
                 if etype == "page_view":
                     c.execute("UPDATE sessions SET pages=pages+1, exit_page=? WHERE session_id=?", (epage, sid))
             c.execute("UPDATE sessions SET last_seen=? WHERE session_id=?", (now, sid))
+            if internal_reason:  # once a visit is known to be ours it stays marked
+                c.execute("UPDATE sessions SET internal=1, internal_reason=COALESCE(internal_reason, ?) WHERE session_id=?",
+                          (internal_reason[:60], sid))
 
     # ---- leads ------------------------------------------------------------
     def add_lead(self, lead: dict) -> int:
         cols = [
             "name", "business", "email", "phone", "business_type", "provider", "knows_fees", "debit_pct",
             "credit_pct", "auth_p", "monthly_fee", "monthly_volume", "message", "statement_file",
-            "statement_name", "session_id", "visitor_id", "source", "medium", "campaign", "estimate",
+            "statement_name", "session_id", "visitor_id", "source", "medium", "campaign", "estimate", "internal",
         ]
         with self.conn() as c:
             cur = c.execute(
                 f"INSERT INTO leads (ts, {', '.join(cols)}) VALUES (?{', ?' * len(cols)})",
-                [time.time()] + [lead.get(k) for k in cols],
+                [time.time()] + [int(bool(lead.get(k))) if k == "internal" else lead.get(k) for k in cols],
             )
             return cur.lastrowid
 
-    def leads(self, since: float, source: str | None = None) -> list[sqlite3.Row]:
-        q, args = "SELECT * FROM leads WHERE ts >= ?", [since]
+    def leads(self, since: float, source: str | None = None, audience: str = "all") -> list[sqlite3.Row]:
+        q, args = f"SELECT * FROM leads WHERE ts >= ? AND {audience_sql(audience)}", [since]
         if source:
             q += " AND source = ?"
             args.append(source)
@@ -188,13 +208,25 @@ class Store:
             c.execute("DELETE FROM events WHERE ts < ?", (before,))
             c.execute("DELETE FROM sessions WHERE last_seen < ?", (before,))
 
+    def set_internal(self, *, session_id: str | None = None, lead_id: int | None = None, internal: bool = True) -> None:
+        """Mark (or unmark) a visit and/or a lead as our own. A lead and its visit always move together."""
+        with self.conn() as c:
+            if lead_id is not None:
+                row = c.execute("SELECT session_id FROM leads WHERE id=?", (lead_id,)).fetchone()
+                c.execute("UPDATE leads SET internal=? WHERE id=?", (int(internal), lead_id))
+                session_id = session_id or (row["session_id"] if row else None)
+            if session_id:
+                c.execute("UPDATE sessions SET internal=?, internal_reason=? WHERE session_id=?",
+                          (int(internal), "marked in admin" if internal else None, session_id))
+                c.execute("UPDATE leads SET internal=? WHERE session_id=?", (int(internal), session_id))
+
     def lead(self, lead_id: int):
         with self.conn() as c:
             return c.execute("SELECT * FROM leads WHERE id=?", (lead_id,)).fetchone()
 
     # ---- reporting --------------------------------------------------------
-    def report(self, since: float, source: str | None = None) -> dict:
-        where, args = "s.started >= ?", [since]
+    def report(self, since: float, source: str | None = None, audience: str = "real") -> dict:
+        where, args = f"s.started >= ? AND {audience_sql(audience, 's.')}", [since]
         if source:
             where += " AND s.source = ?"
             args.append(source)
@@ -255,8 +287,8 @@ class Store:
                 (session_id,),
             ).fetchall()
 
-    def recent_sessions(self, since: float, source: str | None, limit: int = 50) -> list[sqlite3.Row]:
-        q, args = "SELECT * FROM sessions WHERE started >= ?", [since]
+    def recent_sessions(self, since: float, source: str | None, limit: int = 50, audience: str = "real") -> list[sqlite3.Row]:
+        q, args = f"SELECT * FROM sessions WHERE started >= ? AND {audience_sql(audience)}", [since]
         if source:
             q += " AND source = ?"
             args.append(source)

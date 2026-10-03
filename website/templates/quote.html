@@ -16,7 +16,7 @@
 <div class="wrap quote-layout">
   <form class="form" id="quote-form" method="post" action="{{ url_for('quote') }}" enctype="multipart/form-data" data-attrib-form data-section="quote-form" novalidate
         {% if errors %}data-errors="{{ errors.keys()|join(',') }}"{% endif %}>
-    <input type="hidden" name="ft" value="{{ form_token }}"><input type="hidden" name="sid"><input type="hidden" name="vid"><input type="hidden" name="attrib"><input type="hidden" name="atv" value="{{ values.get('atv', '') }}">
+    <input type="hidden" name="ft" value="{{ form_token }}"><input type="hidden" name="sid"><input type="hidden" name="vid"><input type="hidden" name="attrib"><input type="hidden" name="auto"><input type="hidden" name="atv" value="{{ values.get('atv', '') }}">
     <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
 
     {% if errors %}

@@ -259,6 +259,17 @@ class ConsentTest(BrowserCase):
         self.decline_cookies(other)
         self.assertIsNone(other.evaluate("localStorage.getItem('cmd-touch')"), "stored after declining")
 
+    def test_automated_browser_visits_are_marked_internal(self):
+        page = self.new_page()
+        self.go(page, "/?utm_source=automation-check")
+        self.decline_cookies(page)
+        page.evaluate("for (let i = 0; i < 25; i++) window.cmdTrack('test_event', null)")  # force a send
+        page.wait_for_timeout(500)
+        sid = page.evaluate("sessionStorage.getItem('cmd-sid')")
+        with site.store.conn() as c:
+            row = c.execute("SELECT internal, internal_reason FROM sessions WHERE session_id=?", (sid,)).fetchone()
+        self.assertEqual((row["internal"], row["internal_reason"]), (1, "automated browser"))
+
     def test_privacy_opt_out_stops_counting(self):
         page = self.new_page()
         self.go(page, "/privacy")
