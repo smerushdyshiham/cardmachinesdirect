@@ -122,7 +122,8 @@
   }
   function flush(useBeacon) {
     if (!queue.length || optedOut || !allowed) return;
-    const body = JSON.stringify({ sid, vid, page, attrib, events: queue.splice(0, 50) });
+    // auto: automated browsers (like Claude's checks) report navigator.webdriver, so the dashboard can hide them.
+    const body = JSON.stringify({ sid, vid, page, attrib, auto: navigator.webdriver === true ? 1 : 0, events: queue.splice(0, 50) });
     if (useBeacon && navigator.sendBeacon) navigator.sendBeacon(ENDPOINT, new Blob([body], { type: "text/plain" }));
     else fetch(ENDPOINT, { method: "POST", body, keepalive: true, headers: { "Content-Type": "text/plain" } }).catch(() => {});
   }
@@ -209,7 +210,7 @@
   // ---- forms -----------------------------------------------------------------
   document.querySelectorAll("form[data-attrib-form]").forEach((form) => {
     const set = (name, value) => { const el = form.querySelector(`[name="${name}"]`); if (el) el.value = value; };
-    set("sid", sid); set("vid", vid); set("attrib", JSON.stringify(attrib));
+    set("sid", sid); set("vid", vid); set("attrib", JSON.stringify(attrib)); set("auto", navigator.webdriver === true ? "1" : "");
     let started = false;
     form.addEventListener("focusin", () => { if (!started) { started = true; cmdTrack("form_start", { form: form.id }); } });
     form.addEventListener("change", (e) => {

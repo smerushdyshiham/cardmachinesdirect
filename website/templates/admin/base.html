@@ -11,11 +11,14 @@
   <header class="site-header"><div class="wrap">
     <a class="wordmark" href="{{ url_for('admin_dashboard') }}">Card Machines <span>Direct</span></a>
     <nav class="nav tabs" aria-label="Admin">
-      <a href="{{ url_for('admin_dashboard', days=days, source=source) }}" {% if request.endpoint == 'admin_dashboard' %}aria-current="page"{% endif %}>Journeys</a>
-      <a href="{{ url_for('admin_leads', days=days, source=source) }}" {% if request.endpoint == 'admin_leads' %}aria-current="page"{% endif %}>Quote requests</a>
+      <a href="{{ url_for('admin_dashboard', days=days, source=source, show=show) }}" {% if request.endpoint == 'admin_dashboard' %}aria-current="page"{% endif %}>Journeys</a>
+      <a href="{{ url_for('admin_leads', days=days, source=source, show=show) }}" {% if request.endpoint == 'admin_leads' %}aria-current="page"{% endif %}>Quote requests</a>
       <a href="{{ url_for('home') }}">View site</a>
     </nav>
   </div></header>
-  <main class="wrap" style="padding:2rem 0 5rem">{% block content %}{% endblock %}</main>
+  <main class="wrap" style="padding:2rem 0 5rem">
+    <p class="admin-note">This browser is marked as yours, so your own visits to the site are counted as <strong>internal</strong>, not as real visitors. Open this admin once on each device you use (phone, laptop) to do the same there.</p>
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

@@ -318,6 +318,115 @@ class LeadEmailTest(unittest.TestCase):
         sender.assert_called_once()
 
 
+class InternalTrafficTest(unittest.TestCase):
+    """Your own visits and Claude's automated checks are kept apart from real visitors."""
+
+    def setUp(self):
+        site._hits.clear()
+        self.c = site.app.test_client()
+
+    def _visit(self, client, sid, **payload):
+        client.post("/api/events", data=json.dumps({"sid": sid, "page": "/", "attrib": {"source": "direct"},
+                                                    "events": [{"type": "page_view"}], **payload}))
+        with site.store.conn() as c:
+            return c.execute("SELECT internal, internal_reason FROM sessions WHERE session_id=?", (sid,)).fetchone()
+
+    def test_real_visitor_counts_as_real(self):
+        row = self._visit(self.c, "real-visitor")
+        self.assertEqual((row["internal"], row["internal_reason"]), (0, None))
+
+    def test_opening_admin_marks_this_browser_as_ours(self):
+        browser = site.app.test_client()
+        r = browser.get("/admin/", headers=AUTH)
+        self.assertIn("cmd_internal=1", r.headers.get("Set-Cookie", ""))
+        self.assertIn("HttpOnly", r.headers["Set-Cookie"])
+        row = self._visit(browser, "rushdy-visit")
+        self.assertEqual((row["internal"], row["internal_reason"]), (1, "team browser"))
+        self.assertNotIn("cmd_internal", self.c.get("/admin/").headers.get("Set-Cookie", ""), "no cookie without the password")
+
+    def test_automated_browsers_are_internal(self):
+        row = self._visit(self.c, "claude-check", auto=1)
+        self.assertEqual((row["internal"], row["internal_reason"]), (1, "automated browser"))
+
+    def test_office_ip_is_internal_when_configured(self):
+        with unittest.mock.patch.dict("os.environ", {"INTERNAL_IPS": "203.0.113.50, 198.51.100.7"}):
+            client = site.app.test_client()
+            client.environ_base["REMOTE_ADDR"] = "198.51.100.7"
+            row = self._visit(client, "office-visit")
+        self.assertEqual(row["internal_reason"], "office IP")
+
+    def test_dashboard_shows_real_visitors_by_default(self):
+        self._visit(self.c, "real-a")
+        self._visit(self.c, "auto-a", auto=1)
+        real = site.store.report(0)["totals"]["sessions"]
+        internal = site.store.report(0, audience="internal")["totals"]["sessions"]
+        everyone = site.store.report(0, audience="all")["totals"]["sessions"]
+        self.assertEqual(real + internal, everyone)
+        self.assertGreaterEqual(internal, 1)
+        ids = {s["session_id"] for s in site.store.recent_sessions(0, None, 500)}
+        self.assertIn("real-a", ids)
+        self.assertNotIn("auto-a", ids)
+        html = self.c.get("/admin/?show=internal", headers=AUTH).get_data(as_text=True)
+        self.assertIn("auto-a", html)
+        self.assertIn("Internal · automated browser", html)
+
+    def test_internal_quote_is_flagged_and_email_says_so(self):
+        form = {"name": "Me", "business": "My Own Test", "email": "me@example.com", "knows_fees": "no",
+                "ft": _token(), "auto": "1"}
+        self.c.post("/quote", data=form)
+        lead = next(l for l in site.store.leads(0) if l["business"] == "My Own Test")
+        self.assertEqual(lead["internal"], 1)
+        self.assertNotIn("My Own Test", [l["business"] for l in site.store.leads(0, audience="real")])
+        with unittest.mock.patch.dict("os.environ", {"LEADS_EMAIL": "leads@example.com", "SMTP_USER": "a@example.com"}):
+            msg = site._lead_email(5, {"business": "My Own Test"}, None, {"source": "s", "medium": "m", "campaign": ""}, internal=True)
+        self.assertTrue(msg["Subject"].startswith("[Internal] "))
+
+    def test_mark_and_unmark_from_admin(self):
+        self._visit(self.c, "to-mark")
+        lead_id = site.store.add_lead({"name": "x", "business": "Linked", "email": "x@example.com", "session_id": "to-mark"})
+        same_site = {**AUTH, "Origin": "http://localhost"}
+        r = self.c.post("/admin/internal", data={"lead_id": lead_id, "internal": "1", "next": "/admin/leads"}, headers=same_site)
+        self.assertEqual((r.status_code, r.headers["Location"]), (302, "/admin/leads"))
+        self.assertEqual(site.store.lead(lead_id)["internal"], 1)
+        with site.store.conn() as c:
+            self.assertEqual(c.execute("SELECT internal FROM sessions WHERE session_id='to-mark'").fetchone()[0], 1,
+                             "the lead's visit moves with it")
+        self.c.post("/admin/internal", data={"session_id": "to-mark", "internal": "0"}, headers=same_site)
+        self.assertEqual(site.store.lead(lead_id)["internal"], 0)
+
+    def test_mark_endpoint_rejects_forged_cross_site_posts(self):
+        for headers in ({**AUTH, "Origin": "https://evil.example"}, AUTH):
+            with self.subTest(headers=list(headers)):
+                r = self.c.post("/admin/internal", data={"session_id": "x", "internal": "1"}, headers=headers)
+                self.assertEqual(r.status_code, 403)
+        r = self.c.post("/admin/internal", data={"session_id": "x", "internal": "1", "next": "https://evil.example/"},
+                        headers={**AUTH, "Origin": "http://localhost"})
+        self.assertEqual(r.headers["Location"], "/admin/", "never redirects off-site")
+
+    def test_existing_database_is_upgraded_without_losing_data(self):
+        import sqlite3
+        import tempfile
+        from pathlib import Path
+        from store import Store
+        path = Path(tempfile.mkdtemp()) / "old.db"
+        db = sqlite3.connect(path)
+        db.executescript("CREATE TABLE sessions (session_id TEXT PRIMARY KEY, visitor_id TEXT, started REAL, last_seen REAL,"
+                         " entry_page TEXT, exit_page TEXT, source TEXT, medium TEXT, campaign TEXT, referrer_host TEXT,"
+                         " device TEXT, pages INTEGER DEFAULT 0, calc_used INTEGER DEFAULT 0, result_seen INTEGER DEFAULT 0,"
+                         " cta_clicked INTEGER DEFAULT 0, quote_viewed INTEGER DEFAULT 0, form_started INTEGER DEFAULT 0,"
+                         " form_submitted INTEGER DEFAULT 0);"
+                         "INSERT INTO sessions (session_id, started, last_seen, source) VALUES ('old', 1, 1, 'direct');"
+                         "CREATE TABLE leads (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, name TEXT, business TEXT);"
+                         "INSERT INTO leads (ts, name, business) VALUES (1, 'Old', 'Old Lead');")
+        db.commit()
+        db.close()
+        s = Store(path)
+        with s.conn() as c:
+            self.assertEqual(c.execute("SELECT internal FROM sessions WHERE session_id='old'").fetchone()[0], 0)
+            self.assertEqual(c.execute("SELECT business, internal FROM leads").fetchone()[:], ("Old Lead", 0))
+        Store(path)  # running the upgrade twice is harmless
+
+
 HTML_PAGES = [p for p in PAGES if not p.endswith((".xml", ".txt"))]
 
 

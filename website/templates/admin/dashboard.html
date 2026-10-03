@@ -1,4 +1,5 @@
 {% extends "admin/base.html" %}
+{% from "admin/_mark.html" import mark_form %}
 {% set sources = r.sources %}
 {% macro pct(a, b) %}{% if b %}{{ (100 * (a or 0) / b)|round(1) }}%{% else %}–{% endif %}{% endmacro %}
 {% macro secs(s) %}{% if s is none %}–{% elif s < 60 %}{{ s|round|int }}s{% else %}{{ (s // 60)|int }}m {{ (s % 60)|round|int }}s{% endif %}{% endmacro %}
@@ -79,12 +80,13 @@
 
 <h2>Recent visits</h2>
 <div class="scroll"><table>
-  <thead><tr><th>Started</th><th>Source</th><th>Entered on</th><th>Left on</th><th class="n">Pages</th><th class="n">Length</th><th>Got as far as</th><th><span class="visually-hidden">Journey link</span></th></tr></thead>
+  <thead><tr><th>Started</th><th>Source</th><th>Entered on</th><th>Left on</th><th class="n">Pages</th><th class="n">Length</th><th>Got as far as</th><th><span class="visually-hidden">Journey link</span></th><th>Visitor</th></tr></thead>
   <tbody>{% for s in sessions %}<tr>
     <td>{{ s.started|ago }}</td><td>{{ s.source }} / {{ s.medium }}{% if s.campaign %} · {{ s.campaign }}{% endif %}</td>
     <td>{{ s.entry_page }}</td><td>{{ s.exit_page }}</td><td class="n">{{ s.pages }}</td><td class="n">{{ secs(s.last_seen - s.started) }}</td>
     <td>{% if s.form_submitted %}<strong>Sent quote request</strong>{% elif s.form_started %}Started form{% elif s.quote_viewed %}Opened form{% elif s.result_seen %}Saw a result{% elif s.calc_used %}Used calculator{% else %}Browsed{% endif %}</td>
-    <td><a href="{{ url_for('admin_journey', sid=s.session_id) }}">Journey</a></td></tr>
-  {% else %}<tr><td colspan="8" class="muted">No visits yet.</td></tr>{% endfor %}</tbody>
+    <td><a href="{{ url_for('admin_journey', sid=s.session_id) }}">Journey</a></td>
+    <td>{{ mark_form(session_id=s.session_id, internal=s.internal, reason=s.internal_reason) }}</td></tr>
+  {% else %}<tr><td colspan="9" class="muted">No visits yet.</td></tr>{% endfor %}</tbody>
 </table></div>
 {% endblock %}
