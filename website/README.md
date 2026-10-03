@@ -98,7 +98,7 @@ Anywhere else (a VPS, Railway): `pip install -r requirements.txt`, then `gunicor
 3. **Google Analytics 4 (optional):**
    - create a GA4 property and copy its Measurement ID (`G-XXXXXXX`) into `GA4_ID`, or use Tag Manager with `GTM_ID`;
    - it only loads after cookie consent;
-   - every site event is pushed to `dataLayer` as `cmd_<event>`, for example `cmd_calc_result` and `cmd_cta_click`;
+   - GA4 receives page views plus these events: `cmd_calc_result` (saw a saving), `cmd_cta_click` (clicked a quote button), `cmd_quote_view`, `cmd_form_start` and `cmd_form_error`. With Tag Manager instead, every site event is available in `dataLayer` as `cmd_<event>`;
    - for conversions, use page views of `/quote/thanks`. Only real submissions reach that page.
 
 ## Admin

@@ -97,8 +97,20 @@
 
   // ---- queue + transport ----------------------------------------------
   let queue = [];
+  // The moments worth seeing in Google Analytics. gtag only exists after cookie consent, so nothing reaches
+  // Google before then. (Tag Manager users get every event through dataLayer instead.)
+  const GA_EVENTS = new Set(["calc_result", "cta_click", "form_start", "form_error", "quote_view"]);
+  function toGoogle(type, data, extra) {
+    if (typeof window.gtag !== "function" || !GA_EVENTS.has(type)) return;
+    const params = {};
+    Object.entries({ ...(data || {}), ...(extra || {}) }).forEach(([k, v]) => {
+      if (["string", "number", "boolean"].includes(typeof v)) params[k] = typeof v === "string" ? v.slice(0, 100) : v;
+    });
+    window.gtag("event", "cmd_" + type, params);
+  }
   function cmdTrack(type, data, extra) {
     window.dataLayer.push({ event: "cmd_" + type, cmd_page: page, ...(data || {}), ...(extra || {}) });
+    toGoogle(type, data, extra);
     if (optedOut) return;
     queue.push({ type, page, data: data || null, ...(extra || {}) });
     if (queue.length > 200) queue.shift();  // strict mode holds events until consent; don't grow forever

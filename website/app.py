@@ -65,7 +65,7 @@ app.config.update(
     SITE_URL=os.environ.get("SITE_URL", "https://cardmachinesdirect.co.uk").rstrip("/"),
     GTM_ID=os.environ.get("GTM_ID", ""),
     GA4_ID=os.environ.get("GA4_ID", ""),
-    CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "hello@cardmachinesdirect.co.uk"),
+    CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "info@cardmachinesdirect.co.uk"),
 )
 
 if not PARTNERS_FILE.exists():
