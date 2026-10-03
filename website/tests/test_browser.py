@@ -223,6 +223,26 @@ class ConsentTest(BrowserCase):
         self.assertTrue(sent, "events should be sent once the visitor agrees")
         self.assertIsNotNone(page.evaluate("localStorage.getItem('cmd-vid')"))
 
+    def test_google_analytics_waits_for_consent_then_gets_key_events(self):
+        site.app.config["GA4_ID"] = "G-TEST123"
+        self.addCleanup(site.app.config.__setitem__, "GA4_ID", "")
+        page = self.new_page()
+        google = []
+        # Never call the real Google: record and block the request instead.
+        page.route("https://www.googletagmanager.com/**", lambda r: google.append(r.request.url) or r.abort())
+        self.go(page, "/")
+        self.assertEqual(google, [], "Google tag loaded before consent")
+        self.assertFalse(page.evaluate("typeof window.gtag === 'function'"))
+        page.click('[data-consent="yes"]')
+        page.wait_for_timeout(300)
+        self.assertTrue(any("id=G-TEST123" in u for u in google), "Google tag should load after consent")
+        page.evaluate("""() => { const s = document.querySelector('#compare [data-input="volume-slider"]');
+            s.value = 500; s.dispatchEvent(new Event('input', {bubbles: true})); }""")
+        self.calc_result(page)
+        sent = page.evaluate("dataLayer.filter(e => e && e[0] === 'event').map(e => e[1])")
+        self.assertIn("cmd_calc_result", sent)
+        self.assertEqual(page.evaluate("dataLayer.filter(e => e && e[0] === 'config').length"), 1, "exactly one Google tag")
+
     def test_privacy_opt_out_stops_counting(self):
         page = self.new_page()
         self.go(page, "/privacy")

@@ -33,6 +33,8 @@ services:
         generateValue: true
       - key: SITE_URL
         value: https://cardmachinesdirect.co.uk
+      - key: GA4_ID              # Google Analytics measurement ID (public, not a secret). Loads only after cookie consent.
+        value: G-NQCB0QHDPY
       - key: FORCE_HTTPS
         value: "1"
       - key: TRUSTED_PROXIES   # Render puts Cloudflare in front of its own proxy: visitor -> Cloudflare -> Render -> app
@@ -40,7 +42,7 @@ services:
       - key: ADMIN_PASSWORD
         sync: false              # Render prompts for it; choose a long, unique password
       - key: CONTACT_EMAIL
-        value: hello@cardmachinesdirect.co.uk
+        value: info@cardmachinesdirect.co.uk
       # Email alerts for new quote requests. Leave blank for now; filled in at the email stage.
       - key: LEADS_EMAIL
         sync: false
