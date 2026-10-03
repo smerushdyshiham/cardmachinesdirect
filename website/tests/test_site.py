@@ -259,6 +259,65 @@ class SecurityAndSeoTest(unittest.TestCase):
         self.assertIn('twitter:card" content="summary_large_image"', html)
 
 
+
+class LeadEmailTest(unittest.TestCase):
+    """Lead alerts: right security mode for the port, sent in the background, never delaying the visitor."""
+
+    ENV = {"SMTP_HOST": "mail.example.com", "SMTP_USER": "alerts@example.com", "SMTP_PASSWORD": "pw",
+           "LEADS_EMAIL": "leads@example.com"}
+
+    def _msg(self):
+        with unittest.mock.patch.dict("os.environ", self.ENV):
+            return site._lead_email(1, self._values(), None, {"source": "s", "medium": "m", "campaign": ""})
+
+    def _values(self, business="Test Ltd"):
+        return {"name": "T", "business": business, "email": "t@example.com"}
+
+    def test_port_465_uses_ssl_and_587_uses_starttls(self):
+        msg = self._msg()
+        for port, ssl_cls, plain_cls in (("465", "SMTP_SSL", None), ("587", None, "SMTP")):
+            with self.subTest(port=port), unittest.mock.patch.dict("os.environ", {**self.ENV, "SMTP_PORT": port}),                     unittest.mock.patch("smtplib.SMTP_SSL") as ssl_, unittest.mock.patch("smtplib.SMTP") as plain:
+                self.assertTrue(site._send_email(msg, 1))
+                used = ssl_ if ssl_cls else plain
+                self.assertTrue(used.called)
+                self.assertEqual(used.call_args.args[:2], ("mail.example.com", int(port)))
+                server = used.return_value.__enter__.return_value
+                server.login.assert_called_once_with("alerts@example.com", "pw")
+                server.send_message.assert_called_once()
+                if plain_cls:
+                    plain.return_value.starttls.assert_called_once()
+                else:
+                    self.assertFalse(plain.called)
+
+    def test_sender_falls_back_to_smtp_user_and_subject_has_no_line_breaks(self):
+        with unittest.mock.patch.dict("os.environ", {**self.ENV, "SMTP_FROM": ""}):
+            msg = site._lead_email(7, self._values("Evil\r\nBcc: x@y.z"), None, {"source": "s", "medium": "m", "campaign": ""})
+        self.assertEqual(msg["From"], "alerts@example.com")
+        self.assertEqual(msg["Subject"], "New quote request #7: Evil Bcc: x@y.z")
+
+    def test_failed_email_is_logged_not_raised(self):
+        msg = self._msg()
+        with unittest.mock.patch.dict("os.environ", {**self.ENV, "SMTP_PORT": "465"}),                 unittest.mock.patch("smtplib.SMTP_SSL", side_effect=OSError("connection refused")),                 self.assertLogs("cmd", "ERROR") as logs:
+            self.assertFalse(site._send_email(msg, 1))
+        self.assertIn("Lead alert email failed for lead 1", logs.output[0])
+
+    def test_visitor_sees_thank_you_without_waiting_for_the_mail_server(self):
+        import threading
+        release = threading.Event()
+        slow_send = lambda msg, lead_id: release.wait(5) or True  # a mail server that takes ages
+        form = {"name": "T", "business": "Slow Mail Ltd", "email": "t@example.com", "knows_fees": "no", "ft": _token()}
+        with unittest.mock.patch.dict("os.environ", {**self.ENV, "SMTP_PORT": "465"}),                 unittest.mock.patch.object(site, "_send_email", side_effect=slow_send) as sender:
+            started = time.time()
+            r = site.app.test_client().post("/quote", data=form)
+            elapsed = time.time() - started
+            release.set()
+        self.assertEqual(r.status_code, 302)
+        self.assertLess(elapsed, 1.0, "the page waited for the email")
+        self.assertTrue(any(l["business"] == "Slow Mail Ltd" for l in site.store.leads(0)), "lead saved first")
+        site._mailer.submit(lambda: None).result(5)  # let the background send finish
+        sender.assert_called_once()
+
+
 HTML_PAGES = [p for p in PAGES if not p.endswith((".xml", ".txt"))]
 
 

@@ -9,8 +9,10 @@ import os
 import re
 import secrets
 import smtplib
+import ssl
 import time
 from collections import defaultdict, deque
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timezone
 from email.message import EmailMessage
 from functools import wraps
@@ -35,6 +37,8 @@ SNIPPETS = Path(os.environ.get("SNIPPETS_DIR", INSTANCE / "snippets"))
 PARTNERS_FILE = Path(os.environ.get("PARTNERS_FILE", INSTANCE / "partners.json"))
 
 log = logging.getLogger("cmd")
+if not logging.getLogger().handlers:  # under gunicorn nothing is configured, so our messages would never reach the host's logs
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 app = Flask(__name__, instance_path=str(INSTANCE))
 # Trust only as many X-Forwarded-For hops as there are real proxies (1 on Render/Railway), so visitors can't spoof their IP.
@@ -590,27 +594,52 @@ def _estimate_summary(est):
             "saving_monthly": est["saving_monthly"], "basis": est["basis"]}
 
 
+# Lead alerts go out on a background thread, so the visitor sees the thank-you page straight away
+# instead of waiting for the mail server. The lead is already saved before this runs.
+_mailer = ThreadPoolExecutor(max_workers=2, thread_name_prefix="lead-mail")
+
+
 def _notify(lead_id, values, statement_name, attrib):
-    host, to = os.environ.get("SMTP_HOST"), os.environ.get("LEADS_EMAIL")
-    if not host or not to:
-        return
+    if not os.environ.get("SMTP_HOST") or not os.environ.get("LEADS_EMAIL"):
+        return None
+    msg = _lead_email(lead_id, values, statement_name, attrib)
+    return _mailer.submit(_send_email, msg, lead_id)
+
+
+def _lead_email(lead_id, values, statement_name, attrib) -> EmailMessage:
+    to = os.environ["LEADS_EMAIL"]
     msg = EmailMessage()
-    msg["Subject"] = f"New quote request #{lead_id}: {values['business']}"
-    msg["From"] = os.environ.get("SMTP_FROM", to)
+    business = " ".join(values["business"].split())  # no line breaks: they're not allowed in a subject
+    msg["Subject"] = f"New quote request #{lead_id}: {business}"[:200]
+    msg["From"] = os.environ.get("SMTP_FROM") or os.environ.get("SMTP_USER") or to
     msg["To"] = to
     lines = [f"{k}: {v}" for k, v in values.items() if v]
     lines += [f"statement: {statement_name or 'none'}", f"source: {attrib['source']} / {attrib['medium']} / {attrib['campaign']}",
               f"View: {app.config['SITE_URL']}/admin/leads"]
     msg.set_content("\n".join(lines))
+    return msg
+
+
+def _send_email(msg: EmailMessage, lead_id) -> bool:
+    """SMTP_PORT 465 (or SMTP_SECURITY=ssl) uses SSL from the start; anything else upgrades with STARTTLS."""
+    host, port = os.environ["SMTP_HOST"], int(os.environ.get("SMTP_PORT") or 587)
+    ssl_mode = os.environ.get("SMTP_SECURITY", "ssl" if port == 465 else "starttls").lower()
+    context = ssl.create_default_context()
     try:
-        with smtplib.SMTP(host, int(os.environ.get("SMTP_PORT", 587)), timeout=10) as s:
-            s.starttls()
+        if ssl_mode == "ssl":
+            server = smtplib.SMTP_SSL(host, port, timeout=20, context=context)
+        else:
+            server = smtplib.SMTP(host, port, timeout=20)
+            server.starttls(context=context)
+        with server as s:
             if os.environ.get("SMTP_USER"):
                 s.login(os.environ["SMTP_USER"], os.environ.get("SMTP_PASSWORD", ""))
             s.send_message(msg)
+        log.info("Lead alert sent for lead %s", lead_id)
+        return True
     except Exception:  # a failed email must never lose the lead; it's already stored
-        log.exception("Lead notification email failed for lead %s", lead_id)
-
+        log.exception("Lead alert email failed for lead %s (host %s, port %s, %s)", lead_id, host, port, ssl_mode)
+        return False
 
 if __name__ == "__main__":
     app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
