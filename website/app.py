@@ -29,7 +29,10 @@ from store import Store
 BASE = Path(__file__).resolve().parent
 INSTANCE = Path(os.environ.get("INSTANCE_DIR", BASE / "instance"))
 UPLOADS = INSTANCE / "uploads"
-SNIPPETS = INSTANCE / "snippets"
+# On Render these come from "Secret Files" (/etc/secrets/...), so the confidential rates and the marketing
+# code are managed in the dashboard and never live in the repo or on the data disk.
+SNIPPETS = Path(os.environ.get("SNIPPETS_DIR", INSTANCE / "snippets"))
+PARTNERS_FILE = Path(os.environ.get("PARTNERS_FILE", INSTANCE / "partners.json"))
 
 log = logging.getLogger("cmd")
 
@@ -61,7 +64,9 @@ app.config.update(
     CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "hello@cardmachinesdirect.co.uk"),
 )
 
-estimator = Estimator(INSTANCE / "partners.json", BASE / "data" / "competitors.json")
+if not PARTNERS_FILE.exists():
+    raise SystemExit(f"Partner rates file not found at {PARTNERS_FILE}. Set PARTNERS_FILE or add the Secret File.")
+estimator = Estimator(PARTNERS_FILE, BASE / "data" / "competitors.json")
 store = Store(INSTANCE / "site.db")
 UPLOADS.mkdir(parents=True, exist_ok=True)
 
@@ -134,7 +139,8 @@ LOCAL_HOSTS = ("localhost", "127.0.0.1", "[::1]")
 @app.before_request
 def force_https():
     """Send every plain-HTTP request to HTTPS (behind the host's proxy, which sets X-Forwarded-Proto)."""
-    if not app.config["FORCE_HTTPS"] or request.is_secure or request.host.split(":")[0] in LOCAL_HOSTS:
+    if (not app.config["FORCE_HTTPS"] or request.is_secure or request.host.split(":")[0] in LOCAL_HOSTS
+            or request.path == "/healthz"):  # the host's internal health checks come in over plain HTTP
         return None
     # 308 keeps the method and body, so a form posted over HTTP isn't silently turned into a GET.
     return redirect(request.url.replace("http://", "https://", 1), 301 if request.method in ("GET", "HEAD") else 308)
@@ -205,6 +211,14 @@ def guides_redirect():
 def privacy():
     return render_template("privacy.html", retention_days=STATEMENT_RETENTION_DAYS,
                            analytics_days=ANALYTICS_RETENTION_DAYS)
+
+
+@app.get("/healthz")
+def healthz():
+    """For the host's health checks: the app is up and the database answers."""
+    with store.conn() as c:
+        c.execute("SELECT 1").fetchone()
+    return Response("ok", mimetype="text/plain", headers={"Cache-Control": "no-store"})
 
 
 @app.get("/terms")
@@ -318,6 +332,13 @@ def _form_started(token):
 _hits: dict[str, deque] = defaultdict(deque)
 
 
+def client_ip() -> str:
+    """The visitor's IP for rate limiting. CLIENT_IP_HEADER names a header the host sets itself and visitors
+    can't fake (check /admin/diagnostics after deploying); otherwise the proxy-corrected address."""
+    header = os.environ.get("CLIENT_IP_HEADER")
+    return (request.headers.get(header) if header else None) or request.remote_addr or "unknown"
+
+
 def _too_many(name: str, limit: int, per: float) -> bool:
     """Sliding-window rate limit per client IP (in memory, per worker)."""
     if not app.config.get("RATE_LIMITS", True):  # switched off only by the browser test suite
@@ -326,7 +347,7 @@ def _too_many(name: str, limit: int, per: float) -> bool:
     if len(_hits) > 20000:  # forget idle clients so memory can't grow without bound
         for k in [k for k, q in _hits.items() if not q or q[-1] < now - 3600]:
             del _hits[k]
-    q = _hits[f"{name}:{request.remote_addr}"]
+    q = _hits[f"{name}:{client_ip()}"]
     while q and q[0] < now - per:
         q.popleft()
     if len(q) >= limit:
@@ -435,6 +456,21 @@ def admin_leads():
 @admin_required
 def admin_journey(sid):
     return render_template("admin/journey.html", sid=sid, events=store.journey(sid))
+
+
+@app.get("/admin/diagnostics")
+@admin_required
+def admin_diagnostics():
+    """What the host's proxy tells us about this request: used once after deploying to check that HTTPS
+    and visitor IPs are detected correctly (rate limits depend on it). Shows only your own request."""
+    names = ("X-Forwarded-For", "X-Forwarded-Proto", "True-Client-IP", "CF-Connecting-IP", "X-Real-IP", "Host")
+    return jsonify(
+        remote_addr=request.remote_addr, client_ip_used_for_limits=client_ip(), is_secure=request.is_secure,
+        scheme=request.scheme, trusted_proxies=os.environ.get("TRUSTED_PROXIES", "1"),
+        client_ip_header=os.environ.get("CLIENT_IP_HEADER"), headers={n: request.headers.get(n) for n in names},
+        partners_file_found=PARTNERS_FILE.exists(), snippets=[n for n in ("head.html", "body_end.html") if (SNIPPETS / n).exists()],
+        instance_dir=str(INSTANCE), smtp_configured=bool(os.environ.get("SMTP_HOST") and os.environ.get("LEADS_EMAIL")),
+    )
 
 
 @app.get("/admin/statement/<int:lead_id>")

@@ -209,6 +209,24 @@ class SecurityAndSeoTest(unittest.TestCase):
         self.assertIn("Disallow: /admin/", robots)
         self.assertIn("Sitemap: https://cardmachinesdirect.co.uk/sitemap.xml", robots)
 
+    def test_health_check_answers_without_https_redirect(self):
+        r = self.c.get("/healthz", base_url="http://10.0.0.5:10000")  # how the host's checker calls it
+        self.assertEqual((r.status_code, r.get_data(as_text=True)), (200, "ok"))
+
+    def test_diagnostics_is_admin_only_and_reports_setup(self):
+        self.assertEqual(self.c.get("/admin/diagnostics").status_code, 401)
+        d = self.c.get("/admin/diagnostics", headers=AUTH).get_json()
+        self.assertTrue(d["partners_file_found"])
+        self.assertIn("head.html", d["snippets"])
+        self.assertNotIn("test-pass", json.dumps(d))  # never echoes secrets
+
+    def test_client_ip_header_is_used_for_rate_limits_when_configured(self):
+        with unittest.mock.patch.dict("os.environ", {"CLIENT_IP_HEADER": "True-Client-IP"}):
+            with site.app.test_request_context(headers={"True-Client-IP": "203.0.113.9"}):
+                self.assertEqual(site.client_ip(), "203.0.113.9")
+        with site.app.test_request_context(headers={"True-Client-IP": "203.0.113.9"}, environ_base={"REMOTE_ADDR": "198.51.100.1"}):
+            self.assertEqual(site.client_ip(), "198.51.100.1")  # header ignored unless configured: visitors could fake it
+
     def test_404_and_500_pages(self):
         r = self.c.get("/no-such-page")
         self.assertEqual(r.status_code, 404)
