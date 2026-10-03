@@ -220,6 +220,16 @@ class SecurityAndSeoTest(unittest.TestCase):
         self.assertIn("head.html", d["snippets"])
         self.assertNotIn("test-pass", json.dumps(d))  # never echoes secrets
 
+    def test_two_proxy_chain_finds_the_real_visitor_and_resists_spoofing(self):
+        """Render: visitor -> Cloudflare -> Render's proxy. A visitor can prepend fake entries, never replace the real one."""
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        seen = {}
+        fixed = ProxyFix(lambda env, start: seen.update(ip=env["REMOTE_ADDR"]) or [], x_for=2)
+        for xff, real in (("31.94.14.151, 172.70.243.247", "31.94.14.151"),
+                          ("6.6.6.6, 31.94.14.151, 172.70.243.247", "31.94.14.151")):  # "6.6.6.6" typed by the visitor
+            fixed({"REMOTE_ADDR": "10.0.0.1", "HTTP_X_FORWARDED_FOR": xff}, lambda *a: None)
+            self.assertEqual(seen["ip"], real)
+
     def test_client_ip_header_is_used_for_rate_limits_when_configured(self):
         with unittest.mock.patch.dict("os.environ", {"CLIENT_IP_HEADER": "True-Client-IP"}):
             with site.app.test_request_context(headers={"True-Client-IP": "203.0.113.9"}):

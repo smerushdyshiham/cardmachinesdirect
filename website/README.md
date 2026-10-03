@@ -71,7 +71,7 @@ Anywhere else (a VPS, Railway): `pip install -r requirements.txt`, then `gunicor
 | `PARTNERS_FILE` | No | Path to the partner rates file. Default `INSTANCE_DIR/partners.json`. On Render: `/etc/secrets/partners.json`. |
 | `SNIPPETS_DIR` | No | Folder holding `head.html` and `body_end.html` (marketing code). Default `INSTANCE_DIR/snippets`. On Render: `/etc/secrets`. |
 | `CLIENT_IP_HEADER` | No | A header your host sets with the visitor's real IP, used for rate limits. Only set it after checking `/admin/diagnostics`. |
-| `TRUSTED_PROXIES` | No | How many proxies sit in front of the app. Default `1`, which is right for Render or Railway. Use `0` if nothing sits in front. It stops visitors faking their IP to dodge rate limits. |
+| `TRUSTED_PROXIES` | No | How many proxies sit in front of the app. Default `1`. On Render it's `2`, because Cloudflare sits in front of Render's own proxy (confirmed with `/admin/diagnostics`). Use `0` if nothing sits in front. It stops visitors faking their IP to dodge rate limits. |
 | `FORCE_HTTPS` | No | Default `1`: plain-HTTP requests are redirected to HTTPS, and browsers are told to stay on HTTPS (HSTS). Local addresses are never redirected. Set to `0` only if your host can't serve HTTPS. |
 | `ANALYTICS_CONSENT_REQUIRED` | No | Default `0`: the site's own visit counting runs for everyone, and visitors can opt out on the privacy page. This relies on the UK exemption for analytics. Set to `1` to count visits only after "That's fine". Google Analytics and EmailBlaster always wait for consent either way. |
 | `ANALYTICS_RETENTION_DAYS` | No | Visit statistics are deleted after this many days. Default `730`. Shown on the privacy page. |
