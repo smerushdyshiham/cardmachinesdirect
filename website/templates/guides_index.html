@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import icon %}
+{% block title %}Card machine guides: fees, contracts, statements{% endblock %}
+{% block description %}Plain-English guides to UK card machine fees, contracts, statements and rules, written by people who compare the market for a living.{% endblock %}
+{% block content %}
+<header class="article-head" data-section="guides-head">
+  <div class="wrap">
+    <h1>Card machines, explained in plain numbers</h1>
+    <p class="standfirst">The card payments industry makes money from small print. These guides read it for you: what each fee is, what fair looks like, and what you can do about it.</p>
+  </div>
+</header>
+<section class="section-tight" data-section="guides-list">
+  <div class="wrap">
+    <ul class="guide-list" style="margin-top:0">
+      {% for g in guides %}
+      <li><a href="{{ url_for('guide', slug=g.slug) }}"><span><strong>{{ g.h1 }}</strong><span>{{ g.description }}</span></span>{{ icon("arrow-right") }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% include "partials/cta_band.html" %}
+{% endblock %}

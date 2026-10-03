@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% set days = 30 %}{% set source = none %}
+{% block title %}Journey{% endblock %}
+{% block content %}
+<h1>One visit, step by step</h1>
+<p class="muted">Visit {{ sid }}</p>
+<div class="scroll" style="margin-top:1.5rem"><table>
+  <thead><tr><th>Time</th><th>What happened</th><th>Page</th><th>Section</th><th>Detail</th></tr></thead>
+  <tbody>{% for e in events %}<tr>
+    <td>{{ e.ts|ago }}</td><td>{{ e.type|replace('_', ' ') }}</td><td>{{ e.page }}</td><td>{{ e.section or '' }}</td>
+    <td>{% if e.type in ('section_time', 'page_leave') %}{{ ((e.value or 0) / 1000)|round(1) }}s{% elif e.type == 'scroll_depth' %}{{ (e.value or 0)|int }}%{% else %}<code style="font-size:.8rem">{{ e.data or '' }}</code>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="5" class="muted">No events.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

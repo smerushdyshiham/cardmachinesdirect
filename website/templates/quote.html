@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import icon %}
+{% block title %}Get an exact card machine quote | Card Machines Direct{% endblock %}
+{% block description %}Send us your details and a recent card statement. We'll find the cheapest option for how you take payments and send a written quote in pounds.{% endblock %}
+{% block page_id %}/quote{% endblock %}
+{% macro err(name) %}{% if errors.get(name) %}<p class="err" id="{{ name }}-err">{{ errors[name] }}</p>{% endif %}{% endmacro %}
+{% macro described(name, hint=False) %}{% set ids = [] %}{% if hint %}{% set _ = ids.append(name ~ '-hint') %}{% endif %}{% if errors.get(name) %}{% set _ = ids.append(name ~ '-err') %}{% endif %}{% if ids %}aria-describedby="{{ ids|join(' ') }}"{% endif %}{% if errors.get(name) %} aria-invalid="true"{% endif %}{% endmacro %}
+{% block content %}
+<section class="article-head" data-section="quote-intro">
+  <div class="wrap">
+    <h1>Get your exact quote</h1>
+    <p class="standfirst">Two minutes of details and, if you have one, a recent card statement. We'll read every line and come back with the cheapest option for how you take payments, in writing and in pounds.</p>
+  </div>
+</section>
+
+<div class="wrap quote-layout">
+  <form class="form" id="quote-form" method="post" action="{{ url_for('quote') }}" enctype="multipart/form-data" data-attrib-form data-section="quote-form" novalidate
+        {% if errors %}data-errors="{{ errors.keys()|join(',') }}"{% endif %}>
+    <input type="hidden" name="ft" value="{{ form_token }}"><input type="hidden" name="sid"><input type="hidden" name="vid"><input type="hidden" name="attrib"><input type="hidden" name="atv" value="{{ values.get('atv', '') }}">
+    <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+    {% if errors %}
+    <div class="form-error-summary" role="alert" tabindex="-1" id="error-summary">
+      <h2>A couple of things to fix</h2>
+      <ul>{% for k, v in errors.items() %}<li>{% if k == "form" %}{{ v }}{% else %}<a href="#f-{{ k }}">{{ v }}</a>{% endif %}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <fieldset>
+      <legend>About you</legend>
+      <div class="row">
+        <div class="field {{ 'has-error' if errors.name }}"><label for="f-name">Your name</label><input type="text" id="f-name" name="name" autocomplete="name" value="{{ values.get('name', '') }}" required {{ described('name') }}>{{ err('name') }}</div>
+        <div class="field {{ 'has-error' if errors.business }}"><label for="f-business">Business name</label><input type="text" id="f-business" name="business" autocomplete="organization" value="{{ values.get('business', '') }}" required {{ described('business') }}>{{ err('business') }}</div>
+      </div>
+      <div class="row">
+        <div class="field {{ 'has-error' if errors.email }}"><label for="f-email">Email</label><input type="email" id="f-email" name="email" autocomplete="email" value="{{ values.get('email', '') }}" required {{ described('email') }}>{{ err('email') }}</div>
+        <div class="field {{ 'has-error' if errors.phone }}"><label for="f-phone">Phone <span class="opt">(optional)</span></label><input type="tel" id="f-phone" name="phone" autocomplete="tel" value="{{ values.get('phone', '') }}" {{ described('phone') }}>{{ err('phone') }}</div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="f-business_type">Type of business <span class="opt">(optional)</span></label>
+          <select id="f-business_type" name="business_type">
+            {% set bt = values.get('business_type', '') %}
+            <option value="">Choose one</option>
+            {% for o in ["Takeaway", "Restaurant", "Café", "Bar or pub", "Hotel or B&B", "Shop or retail", "Barber or salon", "Phone repair", "Market stall or mobile", "Other"] %}
+            <option {{ 'selected' if bt == o }}>{{ o }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field {{ 'has-error' if errors.monthly_volume }}"><label for="f-monthly_volume">Monthly card takings <span class="opt">(roughly)</span></label>
+          <div class="affix" style="border-width:1.5px"><span>£</span><input type="text" inputmode="numeric" id="f-monthly_volume" name="monthly_volume" value="{{ values.get('monthly_volume', values.get('volume', '')) }}" style="min-height:44px" {{ described('monthly_volume') }}></div>{{ err('monthly_volume') }}</div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your card machine now</legend>
+      <div class="field"><label for="f-provider">Current provider <span class="opt">(optional)</span></label><input type="text" id="f-provider" name="provider" value="{{ values.get('provider', '') }}" placeholder="The company on your statement, or 'none yet'"></div>
+
+      <div class="field {{ 'has-error' if errors.knows_fees }}" role="radiogroup" aria-labelledby="knows-label" {{ described('knows_fees') }}>
+        <span class="label" id="knows-label">Do you know what you're paying in fees?</span>
+        {% set kf = values.get('knows_fees', '') %}
+        <div class="choice-row">
+          <label class="choice"><input type="radio" id="f-knows_fees" name="knows_fees" value="yes" {{ 'checked' if kf == 'yes' }} data-reveal="fees"><span>Yes, I know my rates</span></label>
+          <label class="choice"><input type="radio" name="knows_fees" value="roughly" {{ 'checked' if kf == 'roughly' }} data-reveal="fees"><span>Roughly</span></label>
+          <label class="choice"><input type="radio" name="knows_fees" value="no" {{ 'checked' if kf == 'no' }}><span>No idea</span></label>
+        </div>
+        {{ err('knows_fees') }}
+      </div>
+
+      <div class="reveal-fees" id="fees-panel" {% if kf not in ('yes', 'roughly') %}hidden{% endif %}>
+        <p class="hint" style="margin-bottom:.75rem">Whatever you know. Before VAT, if your statement shows it.</p>
+        <div class="fees-grid" style="grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
+          <div class="mini-field"><label for="f-debit_pct">Debit card rate</label><div class="affix"><input id="f-debit_pct" name="debit_pct" inputmode="decimal" value="{{ values.get('debit_pct', '') }}"><span>%</span></div></div>
+          <div class="mini-field"><label for="f-credit_pct">Credit card rate</label><div class="affix"><input id="f-credit_pct" name="credit_pct" inputmode="decimal" value="{{ values.get('credit_pct', '') }}"><span>%</span></div></div>
+          <div class="mini-field"><label for="f-auth_p">Fee per transaction</label><div class="affix"><input id="f-auth_p" name="auth_p" inputmode="decimal" value="{{ values.get('auth_p', '') }}"><span>p</span></div></div>
+          <div class="mini-field"><label for="f-monthly_fee">Monthly rental</label><div class="affix"><span>£</span><input id="f-monthly_fee" name="monthly_fee" inputmode="decimal" value="{{ values.get('monthly_fee', '') }}"></div></div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your statement <span class="opt" style="font-weight:500;font-size:var(--step-0);color:var(--muted)">(optional, but it's how we get exact)</span></legend>
+      <div class="field {{ 'has-error' if errors.statement }}">
+        <div class="dropzone" data-dropzone>
+          {{ icon("upload") }}
+          <strong>Drop a statement here, or tap to choose a file</strong>
+          <span class="muted">PDF or a clear photo of every page. Up to 10MB.</span>
+          <input type="file" name="statement" id="f-statement" accept=".pdf,.png,.jpg,.jpeg,.heic,.webp,application/pdf,image/*" aria-label="Upload a card statement" {{ described('statement') }}>
+          <p class="file-name" data-file-name aria-live="polite"></p>
+        </div>
+        {{ err('statement') }}
+        <p class="hint">Your latest monthly statement from your card machine provider. We only use it to work out your quote.</p>
+      </div>
+      <div class="field"><label for="f-message">Anything else? <span class="opt">(optional)</span></label><textarea id="f-message" name="message" placeholder="e.g. my contract ends in March, or I take a lot of Amex">{{ values.get('message', '') }}</textarea></div>
+    </fieldset>
+
+    <div>
+      <button class="btn btn-accent" type="submit" style="min-width:14rem">Send for my quote {{ icon("arrow-right") }}</button>
+      <p class="hint muted" style="margin-top:.75rem;font-size:var(--step--1)">We'll only use your details to send your quote. See our <a href="{{ url_for('privacy') }}">privacy notice</a>.</p>
+    </div>
+  </form>
+
+  <aside class="aside" data-section="quote-aside">
+    <div class="rail" data-estimate-chip hidden>
+      <div class="label-stock estimate-chip">
+        <span class="unit">Your calculator estimate</span>
+        <span data-chip-price></span>
+        <span class="unit">possible saving a month</span>
+      </div>
+    </div>
+    <div>
+      <h2 style="font-size:var(--step-1)">What happens next</h2>
+      <ul class="promise">
+        <li>{{ icon("check") }}<span>We read your statement line by line, including the fees tucked into "other charges".</span></li>
+        <li>{{ icon("check") }}<span>We compare the market for how you actually take payments.</span></li>
+        <li>{{ icon("check") }}<span>You get a written quote with every fee set out.</span></li>
+        <li>{{ icon("check") }}<span>If we can't beat your deal, we'll say so.</span></li>
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  // Show the fee boxes only for people who know their fees.
+  var panel = document.getElementById("fees-panel");
+  document.querySelectorAll('input[name="knows_fees"]').forEach(function (r) {
+    r.addEventListener("change", function () { panel.hidden = !(r.checked && r.dataset.reveal); });
+  });
+  // File picker feedback + drag styling.
+  var dz = document.querySelector("[data-dropzone]"), input = document.getElementById("f-statement"), label = dz.querySelector("[data-file-name]");
+  input.addEventListener("change", function () {
+    var f = input.files[0];
+    label.textContent = f ? f.name + " · " + (f.size / 1048576).toFixed(1) + "MB" + (f.size > 10485760 ? ": too big, max 10MB" : "") : "";
+  });
+  ["dragenter", "dragover"].forEach(function (t) { dz.addEventListener(t, function () { dz.classList.add("drag"); }); });
+  ["dragleave", "drop"].forEach(function (t) { dz.addEventListener(t, function () { dz.classList.remove("drag"); }); });
+  // Carry over what they told the calculator.
+  try {
+    var c = JSON.parse(sessionStorage.getItem("cmd-calc") || "null");
+    var vol = document.getElementById("f-monthly_volume");
+    if (c && c.volume && !vol.value) vol.value = Math.round(c.volume);
+    var atvEl = document.querySelector('input[name="atv"]');
+    if (c && c.atv && atvEl && !atvEl.value) atvEl.value = c.atv;
+    if (c && c.current) {
+      var map = { debit_pct: "f-debit_pct", credit_pct: "f-credit_pct", auth_p: "f-auth_p", monthly: "f-monthly_fee" };
+      Object.keys(map).forEach(function (k) { var el = document.getElementById(map[k]); if (el && c.current[k] != null && !el.value) el.value = c.current[k]; });
+    }
+    var last = JSON.parse(sessionStorage.getItem("cmd-last-saving") || "null");
+    if (last && last > 0) {
+      var chip = document.querySelector("[data-estimate-chip]");
+      chip.querySelector("[data-chip-price]").innerHTML = '<span class="price"><span class="cur">£</span>' + Math.floor(last).toLocaleString("en-GB") + '<span class="pence">.' + String(Math.round((last % 1) * 100)).padStart(2, "0") + '</span></span>';
+      chip.hidden = false;
+    }
+  } catch (e) {}
+  var summary = document.getElementById("error-summary");
+  if (summary) summary.focus();
+
+  // ---- check the form in the browser first (the server checks again with the same rules and wording) ----
+  var form = document.getElementById("quote-form"), submitBtn = form.querySelector('button[type="submit"]');
+  var MAX_BYTES = 10 * 1024 * 1024, OK_EXT = /\.(pdf|png|jpe?g|webp|heic)$/i, EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var val = function (n) { var el = form.elements[n]; return el ? String(el.value || "").trim() : ""; };
+  var num = function (v) { var n = Number(v.replace(/[£,]/g, "")); return v === "" || (isFinite(n) && n >= 0); };
+  var rules = [
+    ["name", function () { return val("name") ? "" : "Tell us your name so we know who to ask for."; }],
+    ["business", function () { return val("business") ? "" : "Add your business name."; }],
+    ["email", function () { return EMAIL.test(val("email")) ? "" : "That email doesn't look right. Check for a typo."; }],
+    ["phone", function () { var d = val("phone").replace(/\D/g, ""); return !val("phone") || (d.length >= 10 && d.length <= 13) ? "" : "Enter a UK phone number, or leave it blank."; }],
+    ["monthly_volume", function () { return num(val("monthly_volume")) ? "" : "Numbers only, please."; }],
+    ["knows_fees", function () { return form.querySelector('input[name="knows_fees"]:checked') ? "" : "Pick one, even if it's 'no idea'."; }],
+    ["debit_pct", function () { return num(val("debit_pct")) ? "" : "Numbers only, please."; }],
+    ["credit_pct", function () { return num(val("credit_pct")) ? "" : "Numbers only, please."; }],
+    ["auth_p", function () { return num(val("auth_p")) ? "" : "Numbers only, please."; }],
+    ["monthly_fee", function () { return num(val("monthly_fee")) ? "" : "Numbers only, please."; }],
+    ["statement", function () {
+      var f = input.files && input.files[0];
+      if (!f) return "";
+      if (!OK_EXT.test(f.name)) return "Upload a PDF or a photo (JPG, PNG, HEIC).";
+      return f.size > MAX_BYTES ? "That file is over 10MB. Try a PDF or a smaller photo." : "";
+    }],
+  ];
+  function holder(name) {
+    var el = name === "knows_fees" ? form.querySelector('[role="radiogroup"]') : form.elements[name];
+    return el && (el.closest ? (el.closest(".field, .mini-field") || el) : el);
+  }
+  function show(name, msg) {
+    var box = holder(name), ctl = name === "knows_fees" ? box : form.elements[name];
+    if (!box) return;
+    var id = name + "-err", p = document.getElementById(id);
+    box.classList.toggle("has-error", !!msg);
+    if (msg) {
+      if (!p) { p = document.createElement("p"); p.className = "err"; p.id = id; box.appendChild(p); }
+      p.textContent = msg;
+      ctl.setAttribute("aria-invalid", "true");
+      var ids = (ctl.getAttribute("aria-describedby") || "").split(" ").filter(Boolean);
+      if (ids.indexOf(id) < 0) { ids.push(id); ctl.setAttribute("aria-describedby", ids.join(" ")); }
+    } else {
+      if (p) p.remove();
+      ctl.removeAttribute("aria-invalid");
+    }
+  }
+  var touched = false;
+  function check() {
+    var bad = [];
+    rules.forEach(function (r) { var m = r[1](); show(r[0], m); if (m) bad.push([r[0], m]); });
+    return bad;
+  }
+  form.addEventListener("submit", function (e) {
+    touched = true;
+    var bad = check();
+    if (!bad.length) {
+      submitBtn.disabled = true;  // stops double submissions on slow connections
+      submitBtn.firstChild.textContent = "Sending… ";
+      return;
+    }
+    e.preventDefault();
+    var box = document.getElementById("error-summary");
+    if (!box) {
+      box = document.createElement("div"); box.className = "form-error-summary"; box.id = "error-summary";
+      box.setAttribute("role", "alert"); box.tabIndex = -1;
+      form.insertBefore(box, form.querySelector("fieldset"));
+    }
+    box.innerHTML = "<h2>A couple of things to fix</h2><ul></ul>";
+    bad.forEach(function (b) {
+      var li = document.createElement("li"), a = document.createElement("a");
+      a.href = "#f-" + b[0]; a.textContent = b[1]; li.appendChild(a); box.querySelector("ul").appendChild(li);
+    });
+    box.focus();
+    window.cmdTrack && window.cmdTrack("form_error", { form: form.id, fields: bad.map(function (b) { return b[0]; }).join(","), where: "browser" });
+  });
+  // After the first attempt, clear each message as soon as it's fixed.
+  form.addEventListener("input", function () { if (touched) check(); });
+  form.addEventListener("change", function () { if (touched) check(); });
+  // Back/forward cache: re-enable the button if the visitor returns to this page.
+  window.addEventListener("pageshow", function () { submitBtn.disabled = false; submitBtn.firstChild.textContent = "Send for my quote "; });
+})();
+</script>
+{% endblock %}

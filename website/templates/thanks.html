@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import icon %}
+{% block title %}Thanks, we've got it | Card Machines Direct{% endblock %}
+{% block page_id %}/quote/thanks{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="section" data-section="thanks">
+  <div class="wrap" style="max-width:46rem">
+    <h1 style="font-size:var(--step-4)">Got it. <span style="color:var(--muted)">We're on it.</span></h1>
+    <p class="intro" style="font-size:var(--step-1);margin-top:1.5rem">We'll read through what you sent and email you your quote. If you didn't attach a statement, we may email to ask for one: it's the only way to give you an exact figure.</p>
+    <p style="margin-top:1.5rem">While you wait: <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">how to read your statement and work out your real rate</a>.</p>
+    <p style="margin-top:2rem"><a class="btn btn-ghost" href="{{ url_for('home') }}">Back to the homepage</a></p>
+  </div>
+</section>
+{% endblock %}

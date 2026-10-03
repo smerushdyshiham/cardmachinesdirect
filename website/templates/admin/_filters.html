@@ -1,0 +1,11 @@
+<form class="filters" method="get">
+  <label>Period<br><select name="days" onchange="this.form.submit()">
+    {% for d, l in [(1, 'Today'), (7, 'Last 7 days'), (30, 'Last 30 days'), (90, 'Last 90 days'), (365, 'Last year')] %}
+    <option value="{{ d }}" {{ 'selected' if days == d }}>{{ l }}</option>{% endfor %}
+  </select></label>
+  <label>Source<br><select name="source" onchange="this.form.submit()">
+    <option value="">All sources</option>
+    {% for s in sources %}<option {{ 'selected' if source == s }}>{{ s }}</option>{% endfor %}
+  </select></label>
+  <noscript><button class="btn btn-sm">Apply</button></noscript>
+</form>

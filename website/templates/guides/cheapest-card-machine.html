@@ -1,0 +1,72 @@
+{% extends "guide_base.html" %}
+{% block readtime %}6{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> there is no single cheapest card machine. The cheapest deal for you depends on three numbers: how much you take on card each month, your average sale, and how many customers pay by credit rather than debit. A £19 reader can be the cheapest option for a market stall and the most expensive for a busy café.</p>
+
+<h2 id="three-numbers">"Cheapest" depends on three numbers</h2>
+<ol>
+  <li><strong>Monthly card takings.</strong> Monthly fees are a big cost when you take £1,000 a month, and a small one at £15,000. Percentage rates work the other way round.</li>
+  <li><strong>Average sale.</strong> Per-transaction fees (authorisation fees, a flat charge each time a payment is approved) hurt most when sales are small.</li>
+  <li><strong>Debit and credit mix.</strong> Credit cards cost more to accept. Most UK small businesses see around nine in ten payments on debit, but a hotel or a high-end restaurant may see far more credit.</li>
+</ol>
+<p>Get those three numbers from your last statement, or estimate them, and the answer usually becomes obvious.</p>
+
+<h2 id="by-takings">Cheapest by monthly takings</h2>
+<p>To show how the answer changes, here are two typical kinds of deal side by side:</p>
+<ul>
+  <li><strong>Pay-as-you-go:</strong> a flat 1.69% on every card, no monthly fee.</li>
+  <li><strong>An illustrative contract:</strong> 1.0% debit, 1.5% credit, 2p authorisation fee and £15 a month rental, with VAT added to the fixed fees.</li>
+</ul>
+<p>Both assume a £20 average sale and nine in ten payments on debit.</p>
+<div class="table-wrap wide" tabindex="0" role="region" aria-label="Table: Cheapest by monthly takings">
+<table>
+  <thead><tr><th>Monthly card takings</th><th class="n">Pay-as-you-go</th><th class="n">Contract</th><th>Cheaper</th></tr></thead>
+  <tbody>
+    <tr><td>£1,000</td><td class="n">£16.90</td><td class="n">£29.70</td><td>Pay-as-you-go</td></tr>
+    <tr><td>£2,000</td><td class="n">£33.80</td><td class="n">£41.40</td><td>Pay-as-you-go</td></tr>
+    <tr><td>£3,000</td><td class="n">£50.70</td><td class="n">£53.10</td><td>Pay-as-you-go, just</td></tr>
+    <tr><td>£5,000</td><td class="n">£84.50</td><td class="n">£76.50</td><td>Contract</td></tr>
+    <tr><td>£8,000</td><td class="n">£135.20</td><td class="n">£111.60</td><td>Contract</td></tr>
+    <tr><td>£15,000</td><td class="n">£253.50</td><td class="n">£193.50</td><td>Contract</td></tr>
+  </tbody>
+</table>
+</div>
+<p>With these example rates, the two deals cost the same at about <strong>£3,460 a month</strong> (roughly £41,500 a year). Below that, the monthly fee makes the contract dearer. Above it, the lower percentage wins and keeps winning: at £15,000 a month, pay-as-you-go costs £60 a month more, or £720 a year.</p>
+<p>The break-even point moves with the deal. A cheaper contract brings it down. A contract with a £25 rental and a PCI fee pushes it up. That's why "cheapest" needs your own numbers.</p>
+
+<h2 id="no-monthly-fee">Why "no monthly fee" can cost more</h2>
+<p>"No monthly fee" and "no contract" sound like the cheapest option, and for small takings they often are. But the cost is still there: it's built into a higher percentage on every sale. Once you take more than a few thousand pounds a month, that percentage costs more than the monthly fee you avoided.</p>
+<p>"No fees" offers work the same way. There is always a transaction rate. Read what the percentage is before anything else.</p>
+
+<h2 id="hidden-costs">Hidden costs that change the answer</h2>
+<ul>
+  <li><strong>The machine itself.</strong> Pay-as-you-go readers usually cost about £19 to £79 plus VAT up front. Rental is typically £10 to £25 a month. See <a href="{{ url_for('guide', slug='card-machine-rental') }}">rent vs buy vs no contract</a> for 18-month totals.</li>
+  <li><strong>Fixed fees and VAT.</strong> PCI fees, minimum monthly charges and VAT on the fixed parts can easily add £20 or more a month to a contract. Our <a href="{{ url_for('guide', slug='card-machine-fees') }}">fees guide</a> lists every one.</li>
+  <li><strong>Business and international cards.</strong> If many of your customers pay with company cards or foreign cards, those rates matter more than the headline debit rate.</li>
+  <li><strong>Exit fees.</strong> A cheap rate locked into a long lease isn't cheap if you need to leave. Check the term before you sign. Our <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">contract guide</a> explains the 18-month rule.</li>
+</ul>
+
+<h2 id="worked-examples">Three quick examples</h2>
+<h3>A weekend market stall: £1,200 a month, £8 average sale</h3>
+<p>Low takings and a small average sale. Pay-as-you-go is almost certainly cheapest: about £20 a month at 1.69%, with nothing to pay in a quiet month.</p>
+<h3>A barber: £4,000 a month, £20 average sale</h3>
+<p>Right around the break-even point. Pay-as-you-go costs about £67.60 a month. Whether a contract beats it depends on the rental and fixed fees, so this one needs a proper comparison.</p>
+<h3>A café: £9,000 a month, £6 average sale</h3>
+<p>High takings push towards a contract, but 1,500 small transactions a month make authorisation fees matter. A deal with no per-transaction fee may beat one with a lower percentage. Our <a href="{{ url_for('guide', slug='card-machines-for-hospitality') }}">hospitality guide</a> works this through.</p>
+
+<h2 id="find-yours">Find your cheapest option</h2>
+<p>For a quick answer, put your takings and average sale into our calculator. It works out your estimated monthly fees with every provider that publishes its standard prices. It also shows our cheapest available option for your numbers, and says so if we can't beat what you're already paying.</p>
+<div class="callout">
+  <p><strong>Two numbers, ten seconds.</strong> Enter your monthly card takings and see the cheapest deal for your business in pounds per month.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Find my cheapest option</a>
+</div>
+<p>Not sure what type of machine you need? Start with our <a href="{{ url_for('guide', slug='card-machine-for-small-business') }}">small business buyer's guide</a>.</p>
+
+<div class="sources">
+  <strong>Notes</strong>
+  <ol>
+    <li>The contract figures are illustrative, not a quote from any provider. They sit within typical UK market ranges, checked {{ rates_checked_on }}.</li>
+    <li>Pay-as-you-go flat rates of 1.69% to 1.75% are taken from providers' published UK pricing pages, checked {{ rates_checked_on }}.</li>
+  </ol>
+</div>
+{% endblock %}

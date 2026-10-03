@@ -1,0 +1,16 @@
+# Local tooling
+.claude/
+.playwright-mcp/
+
+# Confidential: names processing partners and their rates. Never commit (see CLAUDE.md).
+Card Machines Direct — Brand Foundations.md
+*Brand Foundations*
+
+# Design files kept locally
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env

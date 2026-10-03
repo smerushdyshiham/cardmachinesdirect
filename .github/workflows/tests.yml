@@ -1,0 +1,55 @@
+name: Tests
+
+# Runs the full suite on every pull request and on every change to main.
+# Branch protection requires this to pass before anything can be merged (and so go live).
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            website/requirements.txt
+            website/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Install Chromium for the browser tests
+        run: python -m playwright install --with-deps chromium
+
+      - name: Make sure no confidential files are in the repo
+        run: |
+          if git ls-files | grep -iE '(^|/)instance/|partners\.json$|Brand Foundations|\.db$|secret_key'; then
+            echo "::error::Confidential file tracked in git (see list above). Remove it from the repo and its history."
+            exit 1
+          fi
+          if git grep -niE 'mypos|clover|shift4' -- . ':!.github/workflows/tests.yml' ':!CLAUDE.md'; then
+            echo "::error::A processing partner is named in the code (see CLAUDE.md hard constraints)."
+            exit 1
+          fi
+
+      - name: Run all tests (calculator, site, browser end-to-end)
+        run: python -m unittest discover -s tests -v

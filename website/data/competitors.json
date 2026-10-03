@@ -1,0 +1,91 @@
+{
+  "_note": "Published standard in-person rates, taken from each provider's own UK pricing page. Only providers that publish a standard rate are listed. Re-check every source before each release and update checked_on. vat_on_fixed=true means the page quotes fixed fees before VAT, so VAT is added; false means VAT is not stated, so the fee is used as quoted (which flatters the competitor rather than us).",
+  "checked_on": "2026-10-02",
+  "providers": [
+    {
+      "name": "SumUp",
+      "plans": [
+        {
+          "plan": "Pay as you go",
+          "debit": 0.0169,
+          "credit": 0.0169,
+          "auth": 0,
+          "monthly": 0,
+          "vat_on_fixed": false,
+          "note": "Card reader bought separately."
+        },
+        {
+          "plan": "Payments Plus",
+          "debit": 0.0099,
+          "credit": 0.0099,
+          "auth": 0,
+          "monthly": 19,
+          "vat_on_fixed": false,
+          "note": "Monthly subscription. Card reader bought separately."
+        }
+      ],
+      "source": "https://www.sumup.com/en-gb/pricing/"
+    },
+    {
+      "name": "Square",
+      "plans": [
+        {
+          "plan": "Free plan",
+          "debit": 0.0175,
+          "credit": 0.0175,
+          "auth": 0,
+          "monthly": 0,
+          "vat_on_fixed": false,
+          "note": "Card reader bought separately."
+        }
+      ],
+      "source": "https://squareup.com/gb/en/pricing"
+    },
+    {
+      "name": "Zettle by PayPal",
+      "plans": [
+        {
+          "plan": "Standard",
+          "debit": 0.0175,
+          "credit": 0.0175,
+          "auth": 0,
+          "monthly": 0,
+          "vat_on_fixed": false,
+          "note": "Card reader bought separately."
+        }
+      ],
+      "source": "https://www.zettle.com/gb/pricing"
+    },
+    {
+      "name": "Tyl by NatWest",
+      "plans": [
+        {
+          "plan": "Up to £50k a year",
+          "debit": 0.0139,
+          "credit": 0.0139,
+          "auth": 0.05,
+          "monthly": 13.99,
+          "vat_on_fixed": true,
+          "max_annual_volume": 50000,
+          "note": "Published rate applies under £50k a year. Includes cheapest terminal rental."
+        }
+      ],
+      "source": "https://tylbynatwest.com/card-machines/pricing-fees"
+    },
+    {
+      "name": "Viva.com",
+      "plans": [
+        {
+          "plan": "Standard",
+          "debit": 0.0169,
+          "credit": 0.0169,
+          "auth": 0,
+          "monthly": 0,
+          "vat_on_fixed": false,
+          "note": "Card machine bought separately."
+        }
+      ],
+      "source": "https://www.viva.com/en-gb/pricing"
+    }
+  ]
+}

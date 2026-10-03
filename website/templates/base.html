@@ -1,0 +1,103 @@
+{% from "partials/icons.html" import icon %}<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Card Machines Direct: stop overpaying to get paid{% endblock %}</title>
+  <meta name="description" content="{% block description %}Find out in a minute if you're overpaying for your card machine. We compare the market and match UK businesses to the cheapest option for how they take payments.{% endblock %}">
+  {% block robots %}{% endblock %}
+  <link rel="canonical" href="{% block canonical %}{{ canonical }}{% endblock %}">
+  <meta name="theme-color" content="#1A1A1A">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:site_name" content="Card Machines Direct">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.description() }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:image" content="{{ site_url }}{% block og_image %}{{ url_for('static', filename='img/social-card.png') }}{% endblock %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Card Machines Direct: stop overpaying to get paid. Compare card machine fees in pounds.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ self.title() }}">
+  <meta name="twitter:description" content="{{ self.description() }}">
+  <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='img/social-card.png') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon-32.png') }}" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+  <link rel="preload" href="{{ url_for('static', filename='fonts/work-sans-latin-var.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ asset('css/site.css') }}">
+  <script>window.dataLayer = window.dataLayer || [];</script>
+  {% block schema %}
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Card Machines Direct","url":"{{ site_url }}","slogan":"Stop overpaying to get paid."}</script>
+  {% endblock %}
+  {# Marketing and tag-manager code only runs after the visitor agrees (see track.js) #}
+  <template id="consented-head">
+    {{ marketing_head }}
+    {% if gtm_id %}<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ gtm_id }}');</script>{% endif %}
+    {% if ga4_id and not gtm_id %}<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_id }}"></script><script>function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','{{ ga4_id }}');</script>{% endif %}
+  </template>
+</head>
+<body data-page="{% block page_id %}{{ request.path }}{% endblock %}"{% if analytics_consent_required %} data-consent-required="1"{% endif %}>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="{{ url_for('home') }}" aria-label="Card Machines Direct home">Card Machines <span>Direct</span></a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav-link" href="{{ url_for('home') }}#compare">Compare fees</a>
+        <a class="nav-link" href="{{ url_for('guides_index') }}" {% if request.path.startswith('/guides') %}aria-current="page"{% endif %}>Guides</a>
+        <a class="btn btn-sm" href="{{ url_for('quote') }}" data-cta="header"><span>Get <span class="w-lg">an exact</span><span class="w-sm">a</span> quote</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a class="wordmark" href="{{ url_for('home') }}">Card Machines <span>Direct</span></a>
+          <p class="muted" style="margin-top:.75rem;max-width:36ch">We find UK businesses a cheaper way to take card payments. Lower fees, no catch, and we'll tell you if we can't help.</p>
+          <p style="margin-top:.75rem"><a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+        </div>
+        <div>
+          <h2>Guides</h2>
+          <ul>
+            {% for g in guides[:5] %}<li><a href="{{ url_for('guide', slug=g.slug) }}">{{ g.short }}</a></li>{% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h2>&nbsp;<span class="visually-hidden">More guides</span></h2>
+          <ul>
+            {% for g in guides[5:] %}<li><a href="{{ url_for('guide', slug=g.slug) }}">{{ g.short }}</a></li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span>© {{ year }} Card Machines Direct</span>
+        <span><a href="{{ url_for('how_we_make_money') }}">How we make money</a> · <a href="{{ url_for('privacy') }}">Privacy and cookies</a> · <a href="{{ url_for('terms') }}">Terms</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="consent" id="consent" hidden role="region" aria-label="Cookie choice">
+    {% if analytics_consent_required %}
+    <p>Can we count your visits so we can improve this site, and let our email partner's tracking run? Nothing is sold or used for ads. <a href="{{ url_for('privacy') }}#storage">Details</a></p>
+    {% else %}
+    <p>We count visits so we can improve this site. Nothing is sold or used for ads. Can our email partner's tracking run too? <a href="{{ url_for('privacy') }}#storage">Details</a></p>
+    {% endif %}
+    <div class="actions">
+      <button class="btn btn-accent" type="button" data-consent="yes">That's fine</button>
+      <button class="btn btn-ghost" type="button" data-consent="no" style="color:var(--paper);border-color:var(--paper)">No thanks</button>
+    </div>
+  </div>
+
+  <script src="{{ asset('js/track.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+  <template id="consented-body">{{ marketing_body }}</template>
+</body>
+</html>

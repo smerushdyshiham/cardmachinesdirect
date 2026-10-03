@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import icon %}
+{% block title %}{{ guide.title }}{% if guide.title|length <= 42 %} | Card Machines Direct{% endif %}{% endblock %}
+{% block description %}{{ guide.description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block page_id %}/guides/{{ guide.slug }}{% endblock %}
+{% block schema %}
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+{"@type":"Article","headline":{{ guide.h1|tojson }},"description":{{ guide.description|tojson }},"dateModified":"{{ guide.updated }}","author":{"@type":"Organization","name":"Card Machines Direct"},"publisher":{"@type":"Organization","name":"Card Machines Direct","url":"{{ site_url }}"},"mainEntityOfPage":"{{ site_url }}/guides/{{ guide.slug }}"},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ site_url }}/"},{"@type":"ListItem","position":2,"name":"Guides","item":"{{ site_url }}/guides/"},{"@type":"ListItem","position":3,"name":{{ guide.short|tojson }}}]}
+{% block extra_schema %}{% endblock %}
+]}</script>
+{% endblock %}
+{% block content %}
+<header class="article-head" data-section="article-head">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ url_for('home') }}">Home</a><span aria-hidden="true">/</span><a href="{{ url_for('guides_index') }}">Guides</a></nav>
+    <h1>{{ guide.h1 }}</h1>
+    <p class="standfirst">{% block standfirst %}{{ guide.description }}{% endblock %}</p>
+    <p class="meta">Updated {{ guide.updated|replace('2026-10-02', '2 October 2026') }} · {% block readtime %}6{% endblock %} minute read</p>
+  </div>
+</header>
+
+<div class="wrap article-layout">
+  <article class="prose" data-section="article">
+    {% block body %}{% endblock %}
+  </article>
+  <aside class="aside">
+    <nav class="toc" aria-label="On this page" data-toc hidden>
+      <h2>On this page</h2>
+      <ol></ol>
+    </nav>
+    <div class="aside-calc rail" data-section="aside-calc">
+      <div class="label-stock">
+        <h2>{% block aside_title %}What should your card machine cost?{% endblock %}</h2>
+        <p>{% block aside_text %}Put in your monthly card takings and see your estimated fees against every provider that publishes its prices.{% endblock %}</p>
+        <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-aside">Compare my fees {{ icon("arrow-right") }}</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<section class="related" data-section="related">
+  <div class="wrap">
+    <h2>Keep reading</h2>
+    <ul class="guide-list">
+      {% for g in guide.related %}
+      <li><a href="{{ url_for('guide', slug=g.slug) }}"><span><strong>{{ g.short }}</strong><span>{{ g.teaser }}</span></span>{{ icon("arrow-right") }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% include "partials/cta_band.html" %}
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var toc = document.querySelector("[data-toc]"), heads = document.querySelectorAll(".prose h2[id]");
+  if (!toc || heads.length < 3) return;
+  var ol = toc.querySelector("ol");
+  heads.forEach(function (h) { var li = document.createElement("li"), a = document.createElement("a"); a.href = "#" + h.id; a.textContent = h.textContent; li.appendChild(a); ol.appendChild(li); });
+  toc.hidden = false;
+})();
+</script>
+{% endblock %}

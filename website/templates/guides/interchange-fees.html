@@ -1,0 +1,91 @@
+{% extends "guide_base.html" %}
+{% block readtime %}7{% endblock %}
+{% block extra_schema %},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What are interchange fees in the UK?","acceptedAnswer":{"@type":"Answer","text":"Interchange is the fee the cardholder's bank takes on every card payment. In the UK it is capped at 0.2% for consumer debit cards and 0.3% for consumer credit cards used in the UK. Business and commercial cards are not capped."}},
+{"@type":"Question","name":"Is interchange-plus cheaper than a blended rate?","acceptedAnswer":{"@type":"Answer","text":"Often, because you pay the real interchange and scheme fees plus a stated markup, rather than a blended rate with the markup built in. But it is harder to read and the cost varies month to month, so compare both using your own effective rate."}}
+]}{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> interchange is the fee the <strong>customer's bank</strong> takes on every card payment. In the UK it's capped at <strong>0.2% for consumer debit</strong> and <strong>0.3% for consumer credit</strong>. If you pay 1.5% on a debit card, most of that isn't interchange. It's your provider's margin.</p>
+
+<h2 id="one-sentence">Interchange in one sentence</h2>
+<p>When a customer taps their card, their bank (the "issuer") keeps a small slice of the payment. That slice is interchange, and your provider passes it on to you inside your rate.</p>
+<p>Every card fee you pay has three parts:</p>
+<ol>
+  <li><strong>Interchange</strong>, which goes to the customer's bank.</li>
+  <li><strong>Scheme fees</strong>, which go to Visa or Mastercard for running the network.</li>
+  <li><strong>Your provider's markup</strong>, which is what they keep.</li>
+</ol>
+
+<h2 id="caps">The UK caps, and what's not capped</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Table: The UK caps, and what&#x27;s not capped">
+<table>
+  <thead><tr><th>Card type</th><th class="n">Interchange cap</th></tr></thead>
+  <tbody>
+    <tr><td>UK consumer debit card, used in the UK</td><td class="n">0.2%</td></tr>
+    <tr><td>UK consumer credit card, used in the UK</td><td class="n">0.3%</td></tr>
+    <tr><td>Business and commercial cards</td><td class="n">No cap</td></tr>
+    <tr><td>Cards issued outside the UK</td><td class="n">Different rules (see below)</td></tr>
+  </tbody>
+</table>
+</div>
+<p>The caps come from the Interchange Fee Regulation. The UK kept it after Brexit, and the Payment Systems Regulator enforces it. The debit cap is a weighted average, so a single payment can be a little higher.<sup><a href="#s1">1</a></sup></p>
+<p><strong>Amex works differently.</strong> When Amex is both the card issuer and the company processing the payment, the caps don't apply in the same way. In practice, Amex is often priced separately and higher.</p>
+
+<h2 id="scheme-fees">Scheme fees: the part that keeps rising</h2>
+<p>Interchange is capped. Scheme fees are not. In March 2025 the Payment Systems Regulator found that Visa and Mastercard's scheme and processing fees had risen by at least 25% in real terms since 2017. It said the market for those services wasn't working well, and estimated the extra cost to UK businesses at no less than £170m a year.<sup><a href="#s2">2</a></sup> In July 2026 it issued final directions requiring the schemes to give clearer information about their fees and to tighten how they set prices.<sup><a href="#s3">3</a></sup></p>
+<p>On a blended rate, you never see scheme fees directly. They're folded into your percentage, so a rise may reach you as a "rate review" letter.</p>
+
+<h2 id="pricing-models">Blended vs interchange-plus vs interchange++</h2>
+<ul>
+  <li><strong>Blended:</strong> one rate for debit and one for credit, with interchange, scheme fees and markup mixed together. Simple to read, impossible to check.</li>
+  <li><strong>Interchange-plus (IC+):</strong> you pay the real interchange on each payment, plus a markup from your provider.</li>
+  <li><strong>Interchange++ (IC++):</strong> you pay the real interchange and the real scheme fees as separate lines, plus a markup. The most transparent model.</li>
+</ul>
+<h3 id="worked">Worked example: £10,000 a month</h3>
+<p>Take a shop taking £9,000 on UK consumer debit and £1,000 on UK consumer credit a month, across 500 transactions. Under IC++, assume scheme fees of 0.15% and a provider markup of 0.30% plus 3p per transaction, with VAT on the 3p as most UK quotes add it. These are illustrative figures for the example, not a quote.</p>
+<div class="worked">
+  <strong>Interchange++, illustrative</strong>
+  <dl>
+    <dt>Interchange: £9,000 × 0.2% + £1,000 × 0.3%</dt><dd>£21.00</dd>
+    <dt>Scheme fees: £10,000 × 0.15%</dt><dd>£15.00</dd>
+    <dt>Markup: £10,000 × 0.30%</dt><dd>£30.00</dd>
+    <dt>Markup: 500 × 3p = £15.00, plus VAT</dt><dd>£18.00</dd>
+    <dt class="tot">Total</dt><dd class="tot">£84.00</dd>
+  </dl>
+</div>
+<p>The same shop on a blended 1.1% debit and 1.6% credit would pay <strong>£115.00</strong>. The real costs underneath are the same £36. The difference is how much markup sits on top, and on a blended rate you can't see it.</p>
+<p>Interchange-plus isn't automatically cheaper. A high markup on IC++ can cost more than a well-negotiated blended rate. The test is the same either way: work out your <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">effective rate</a> and compare.</p>
+
+<h2 id="which-suits">Which pricing suits which business</h2>
+<ul>
+  <li><strong>Small takings, simple needs:</strong> a flat or blended rate is easier, and the difference is pounds, not hundreds.</li>
+  <li><strong>Steady takings in the thousands each month, mostly UK debit:</strong> interchange-plus can be worth asking about, because debit interchange is so low.</li>
+  <li><strong>Lots of business, premium or foreign cards:</strong> interchange-plus shows exactly what those cards cost, so you can decide whether to keep accepting them.</li>
+</ul>
+
+<h2 id="changes">What's changing</h2>
+<ul>
+  <li><strong>Cross-border fees.</strong> After Brexit, Visa and Mastercard raised interchange on online payments between the UK and the EEA. Debit went from 0.2% to 1.15%, and credit from 0.3% to 1.5%. The PSR is working towards a cap, and in January 2026 the High Court upheld its power to set one. This mostly affects online sales to European cardholders, not tourists paying in person.<sup><a href="#s4">4</a></sup></li>
+  <li><strong>Scheme fee remedies.</strong> The July 2026 directions are now being put in place.</li>
+  <li><strong>The PSR is being merged into the Financial Conduct Authority.</strong> The government announced this in March 2025. Existing rules, including the caps, stay in force.</li>
+</ul>
+
+<h2 id="next">What this means for you</h2>
+<p>If your debit rate is well above 1%, you're paying mainly for markup, and markup is negotiable. The quickest way to see how much is to compare your current fees with what the market would charge for your numbers.</p>
+<div class="callout">
+  <p><strong>See what your fees should be.</strong> Our calculator works out your estimated monthly cost against every provider that publishes its prices, in pounds.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Compare my fees</a>
+</div>
+<p>For the full list of charges you might see, read <a href="{{ url_for('guide', slug='card-machine-fees') }}">card machine fees explained</a>. If you're wondering whether you can pass fees on to customers instead, read <a href="{{ url_for('guide', slug='card-surcharges-uk') }}">our guide to surcharges</a>.</p>
+
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li id="s1">Payment Systems Regulator, <a href="https://www.psr.org.uk/media/dj1pcbob/ps161-application-of-ifr-in-uk-phase-1.pdf" rel="noopener">PS16/1: Application of the Interchange Fee Regulation in the UK</a>.</li>
+    <li id="s2">Payment Systems Regulator, <a href="https://psr.org.uk/news-and-updates/latest-news/news/psr-finds-market-isn-t-working-well-for-card-scheme-and-processing-services" rel="noopener">card scheme and processing fees market review, final report (March 2025)</a>.</li>
+    <li id="s3">Payment Systems Regulator, <a href="https://www.psr.org.uk/media/yagji0jn/ps26-1-final-decision-itc-and-pg-jul-2026-v4.pdf" rel="noopener">PS26/1 final decision (July 2026)</a>.</li>
+    <li id="s4">Payment Systems Regulator, <a href="https://www.psr.org.uk/our-work/market-reviews/market-review-into-cross-border-interchange-fees/" rel="noopener">market review into cross-border interchange fees</a>.</li>
+  </ol>
+</div>
+{% endblock %}

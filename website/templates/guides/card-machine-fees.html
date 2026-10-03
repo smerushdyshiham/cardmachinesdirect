@@ -1,0 +1,104 @@
+{% extends "guide_base.html" %}
+{% block readtime %}7{% endblock %}
+{% block extra_schema %},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is a normal card machine fee in the UK?","acceptedAnswer":{"@type":"Answer","text":"Most small businesses on a standard contract pay roughly 1% to 1.5% on debit cards and 1.4% to 2% on credit cards, plus fixed monthly charges. Pay-as-you-go readers usually charge a flat 1.69% to 1.75% on every card. Your effective rate, which is total fees divided by total card takings, is the number to compare."}},
+{"@type":"Question","name":"Do card machine fees include VAT?","acceptedAnswer":{"@type":"Answer","text":"The percentage you pay on each card payment is normally exempt from VAT. Fixed charges such as terminal rental, PCI fees and often authorisation fees usually have 20% VAT added on top, which many quotes leave out."}},
+{"@type":"Question","name":"Can I negotiate card machine fees?","acceptedAnswer":{"@type":"Answer","text":"Yes. Rates on contracts are rarely fixed. Providers price by how much you take, your average sale and your type of business, so a business that shows its current statement and a competing quote is usually offered a better rate."}}
+]}{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> a card machine deal has up to six charges, not one. Two are percentages of what you take. The rest are fixed fees that quietly add up. Add them all together, divide by your card takings, and you get your <strong>effective rate</strong>: the only number worth comparing.</p>
+
+<h2 id="six-fees">The six fees on a typical UK card machine deal</h2>
+<p>Most statements break your costs into these six lines. Not every deal has all six. Pay-as-you-go readers, for example, usually only have the first two.</p>
+<div class="table-wrap wide" tabindex="0" role="region" aria-label="Table: The six fees on a typical UK card machine deal">
+<table>
+  <thead><tr><th>Fee</th><th>What it is</th><th class="n">Typical range</th></tr></thead>
+  <tbody>
+    <tr><td>Debit card rate</td><td>A percentage of every debit card payment.</td><td class="n">1.0%–1.5%</td></tr>
+    <tr><td>Credit card rate</td><td>A percentage of every credit card payment. Higher than debit, because the card issuer charges more.</td><td class="n">1.4%–2.0%</td></tr>
+    <tr><td>Authorisation fee</td><td>A flat charge each time a payment is approved, whatever its size.</td><td class="n">1p–4p each</td></tr>
+    <tr><td>Terminal rental</td><td>A monthly fee for the card machine itself.</td><td class="n">£10–£25/month</td></tr>
+    <tr><td>PCI fee</td><td>A charge for card security compliance. Often avoidable (see our <a href="{{ url_for('guide', slug='pci-compliance-fees') }}">PCI guide</a>).</td><td class="n">£4–£5/month</td></tr>
+    <tr><td>Minimum monthly charge</td><td>A floor on your fees. If your transaction fees come in under it, you pay the difference.</td><td class="n">£10–£20/month</td></tr>
+  </tbody>
+</table>
+</div>
+<p>These ranges are what we see across the UK market for small businesses on standard pricing. They are not promises: your provider may charge more or less, and that is the point of checking.</p>
+<p>Two more lines turn up less often but cost a lot when they do: <strong>business and commercial card rates</strong>, which can be 2.5% or more because those cards have no fee cap, and <strong>non-UK card rates</strong> for tourists' cards.</p>
+
+<h2 id="pricing-models">Transaction fees: flat rate, blended and interchange-plus</h2>
+<p>Providers price the percentage part of your fees in one of three ways.</p>
+<ul>
+  <li><strong>Flat rate.</strong> One percentage for every card, usually 1.69% to 1.75%, with no monthly fee. Simple and fair for small takings, expensive once you grow.</li>
+  <li><strong>Blended.</strong> Separate rates for debit and credit (sometimes also business cards), plus fixed fees. This is what most contract deals use.</li>
+  <li><strong>Interchange-plus.</strong> You pay the actual fee charged by the cardholder's bank and the card scheme, plus a fixed markup from your provider. The most transparent model, but harder to read. Our <a href="{{ url_for('guide', slug='interchange-fees') }}">interchange guide</a> explains it with a worked example.</li>
+</ul>
+
+<h2 id="fair-rate">What sits underneath every rate</h2>
+<p>Every percentage you pay is made of three parts. Knowing them tells you how much room your provider has to cut.</p>
+<ol>
+  <li><strong>Interchange:</strong> the fee the customer's bank takes. In the UK it is capped at <strong>0.2% for consumer debit cards</strong> and <strong>0.3% for consumer credit cards</strong>.<sup><a href="#s1">1</a></sup></li>
+  <li><strong>Scheme fees:</strong> what Visa and Mastercard charge for running the network. Usually a fraction of a percent, and rising. The Payment Systems Regulator found these fees rose by at least 25% in real terms since 2017.<sup><a href="#s2">2</a></sup></li>
+  <li><strong>Your provider's markup:</strong> everything else. This is the part you can negotiate.</li>
+</ol>
+<p>So if you pay 1.5% on a UK debit card, roughly 0.2% goes to the card's bank, a small slice goes to the scheme, and the rest, well over 1%, is your provider's margin.</p>
+
+<h2 id="fixed-fees">Fixed fees: where the money hides</h2>
+<p>Percentages get all the attention, but fixed fees are what make small businesses overpay. Watch for three things.</p>
+<ul>
+  <li><strong>VAT.</strong> The percentage fees are normally VAT-exempt. Rental, PCI and often authorisation fees are not, so add 20% to them. Many quotes don't.</li>
+  <li><strong>Authorisation fees on small sales.</strong> 3p on a £30 meal is 0.1%. On a £3 coffee it is 1%, on top of your rate. Our <a href="{{ url_for('guide', slug='card-machines-for-hospitality') }}">hospitality guide</a> shows how fast this adds up.</li>
+  <li><strong>The minimum monthly charge.</strong> In a quiet month, you can pay for transactions you never took.</li>
+</ul>
+
+<h2 id="worked-example">Worked example: a takeaway taking £8,000 a month on card</h2>
+<p>Here is a fairly typical contract for a busy takeaway. It takes £8,000 a month on card, with an average order of £12. That's about 667 transactions. Nine in ten are debit cards.</p>
+<div class="worked">
+  <strong>Illustrative contract: 1.25% debit, 1.75% credit, 3p authorisation, £20 rental, £4.50 PCI</strong>
+  <dl>
+    <dt>Debit: £7,200 × 1.25%</dt><dd>£90.00</dd>
+    <dt>Credit: £800 × 1.75%</dt><dd>£14.00</dd>
+    <dt>Authorisation: about 667 payments × 3p = £20.00, plus VAT</dt><dd>£24.00</dd>
+    <dt>Rental and PCI: £24.50, plus VAT</dt><dd>£29.40</dd>
+    <dt class="tot">Total per month</dt><dd class="tot">£157.40</dd>
+  </dl>
+</div>
+<p>On paper the rate is "1.25%". In reality this takeaway pays <strong>£157.40 a month, an effective rate of 1.97%</strong>. That's £1,888.80 a year. Almost all of the gap between the headline rate and the real one, £53.40 of it, comes from fixed fees and VAT.</p>
+<p>Every 0.1% knocked off the debit and credit rates saves this business £8 a month. Getting rid of the PCI fee saves another £5.40. Small numbers, but they compound.</p>
+
+<h2 id="effective-rate">Your rate isn't the whole story: work out your effective rate</h2>
+<p>To compare deals properly, use one number:</p>
+<p class="answer"><strong>Effective rate = total monthly fees ÷ total monthly card takings × 100</strong></p>
+<p>Take the total fees from your latest statement, including VAT, and divide by what you took on card that month. If you have never read a statement before, our <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">statement guide</a> shows you where each figure is.</p>
+<p>As a very rough guide, a small business on a contract paying an effective rate above 1.5% is usually worth a second look. Whether you can do better depends on your takings, your average sale and your card mix.</p>
+
+<h2 id="cut-fees">How to cut your card machine fees</h2>
+<ol>
+  <li><strong>Find your effective rate</strong> using the formula above.</li>
+  <li><strong>Check the fixed fees.</strong> PCI and minimum monthly charges are the easiest to remove.</li>
+  <li><strong>Check your contract end date.</strong> New card machine leases are capped at 18 months. Our <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">contract guide</a> explains how to leave.</li>
+  <li><strong>Get a comparison</strong> with your real numbers, not the advertised ones.</li>
+</ol>
+<div class="callout">
+  <p><strong>Want to know what you should be paying?</strong> Put your monthly card takings into our calculator. It shows your estimated monthly fees against every provider that publishes its prices, in pounds.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Compare my fees</a>
+</div>
+
+<h2 id="faq">Frequently asked questions</h2>
+<div class="faq">
+  <details><summary>What is a normal card machine fee in the UK?</summary><div class="a"><p>On a standard contract, most small businesses pay roughly 1% to 1.5% on debit cards and 1.4% to 2% on credit cards, plus fixed monthly charges. Pay-as-you-go readers usually charge a flat 1.69% to 1.75%. Compare effective rates, not headline rates.</p></div></details>
+  <details><summary>Do card machine fees include VAT?</summary><div class="a"><p>The percentage on each payment is normally VAT-exempt. Fixed charges like rental, PCI and often authorisation fees usually have 20% VAT added, and many quotes leave it out.</p></div></details>
+  <details><summary>Can I negotiate card machine fees?</summary><div class="a"><p>Yes. Contract rates are rarely fixed. Providers price by your takings, average sale and business type. Showing your current statement and a competing quote usually gets a better offer.</p></div></details>
+  <details><summary>Can I pass card fees on to my customers?</summary><div class="a"><p>Not for consumer cards. Surcharging them has been banned in the UK since January 2018. Our <a href="{{ url_for('guide', slug='card-surcharges-uk') }}">surcharge guide</a> covers the business-card exception and minimum spends.</p></div></details>
+</div>
+
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li id="s1">Payment Systems Regulator, <a href="https://www.psr.org.uk/media/dj1pcbob/ps161-application-of-ifr-in-uk-phase-1.pdf" rel="noopener">PS16/1: Application of the Interchange Fee Regulation in the UK</a>. The debit cap is a weighted average, so a single payment can be slightly higher.</li>
+    <li id="s2">Payment Systems Regulator, <a href="https://psr.org.uk/news-and-updates/latest-news/news/psr-finds-market-isn-t-working-well-for-card-scheme-and-processing-services" rel="noopener">market review of card scheme and processing fees, final report (March 2025)</a>.</li>
+    <li>Typical fee ranges are drawn from published UK provider pricing and industry guides, checked {{ rates_checked_on }}. They are market observations, not quotes.</li>
+  </ol>
+</div>
+{% endblock %}

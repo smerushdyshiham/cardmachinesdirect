@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Page not found | Card Machines Direct{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block description %}That page isn't here. Try the card machine fee calculator or our plain-English guides.{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap" style="max-width:46rem">
+    <h1 style="font-size:var(--step-4)">That page isn't on the shelf.</h1>
+    <p class="intro" style="margin-top:1.5rem">It may have moved. Try the <a href="{{ url_for('home') }}#compare">fee calculator</a> or our <a href="{{ url_for('guides_index') }}">guides</a>.</p>
+  </div>
+</section>
+{% endblock %}

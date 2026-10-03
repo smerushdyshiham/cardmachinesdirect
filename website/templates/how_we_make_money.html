@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}How we make money | Card Machines Direct{% endblock %}
+{% block description %}Card Machines Direct is paid by the card payment providers we match you with, not by you. Here's exactly how, and why it keeps us on your side.{% endblock %}
+{% block content %}
+<header class="article-head" data-section="money-head">
+  <div class="wrap">
+    <h1>How we make money</h1>
+    <p class="standfirst">You don't pay us anything. The card payment provider you switch to does. Here's how that works and why it matters to you.</p>
+  </div>
+</header>
+<div class="wrap article-layout" style="grid-template-columns:minmax(0,1fr)">
+  <article class="prose" data-section="money-body">
+    <h2 id="two-ways">We're paid two ways</h2>
+    <ul>
+      <li><strong>A one-off commission</strong> from the provider when you sign up with them through us.</li>
+      <li><strong>A small share of the fees</strong> the provider earns from you, every month you stay with them.</li>
+    </ul>
+    <p>Neither comes out of your pocket on top of your quote. The prices in your quote are the prices you pay.</p>
+
+    <h2 id="why">Why that keeps us honest</h2>
+    <p>Most of what we earn comes month by month, so we only do well if you stay. And you'll only stay on a deal that's genuinely cheap for you. Putting you on an expensive deal would be a bad trade for us: you'd leave, and tell other business owners why.</p>
+    <p>That's also why we'll tell you when we can't beat what you already pay. A switch that doesn't save you money isn't one we want.</p>
+
+    <h2 id="who">Who we work with</h2>
+    <p>We hold agreements with several card payment providers, so we're not tied to one. We compare what each would charge for how you take payments, and recommend the cheapest. Your written quote lists every fee before you sign anything.</p>
+
+    <h2 id="questions">Questions?</h2>
+    <p>Email <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> and a person will answer.</p>
+  </article>
+</div>
+{% include "partials/cta_band.html" %}
+{% endblock %}

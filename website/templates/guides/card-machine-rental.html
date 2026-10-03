@@ -1,0 +1,86 @@
+{% extends "guide_base.html" %}
+{% block readtime %}6{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> at low card takings, a pay-as-you-go reader with no contract is usually cheapest. As takings grow, a contract with lower rates wins, and the monthly rental becomes a small part of the bill. Over 18 months the difference can be hundreds of pounds either way, so do the sum with your own numbers.</p>
+
+<h2 id="three-ways">Three ways to get a card machine</h2>
+<ul>
+  <li><strong>No contract (pay-as-you-go).</strong> Buy a reader, usually £19 to £79 plus VAT, and pay a flat rate on every sale, typically 1.69% to 1.75%. No monthly fee, and you can stop whenever you like.</li>
+  <li><strong>Rent on a contract.</strong> Pay a monthly rental, typically £10 to £25 plus VAT, in return for lower debit and credit rates. Repairs and replacements are usually included.</li>
+  <li><strong>Buy a terminal and take a contract rate.</strong> Pay up front for the machine, then contract rates with no rental. Check that the terminal will work with another provider if you move. Many are locked to the company that sold them.</li>
+</ul>
+
+<h2 id="18-month-costs">What each option costs over 18 months</h2>
+<p>We've used 18 months because that's the longest first term most new card machine contracts can now have. The example rates are:</p>
+<ul>
+  <li><strong>Pay-as-you-go:</strong> 1.69% on every card, plus a £29 reader.</li>
+  <li><strong>Rent:</strong> 1.1% debit, 1.6% credit, 2p per transaction, £18 a month rental.</li>
+  <li><strong>Buy:</strong> the same contract rates with no rental, plus a £179 terminal.</li>
+</ul>
+<p>VAT is added to the machine, rental and per-transaction fees. Every example assumes a £20 average sale and nine in ten payments on debit.</p>
+<div class="table-wrap wide" tabindex="0" role="region" aria-label="Table: What each option costs over 18 months">
+<table>
+  <thead><tr><th>Monthly card takings</th><th class="n">Pay-as-you-go</th><th class="n">Rent</th><th class="n">Buy terminal</th></tr></thead>
+  <tbody>
+    <tr><td>£2,000</td><td class="n"><strong>£643.20</strong></td><td class="n">£846.00</td><td class="n">£672.00</td></tr>
+    <tr><td>£6,000</td><td class="n">£1,860.00</td><td class="n">£1,760.40</td><td class="n"><strong>£1,586.40</strong></td></tr>
+    <tr><td>£15,000</td><td class="n">£4,597.80</td><td class="n">£3,817.80</td><td class="n"><strong>£3,643.80</strong></td></tr>
+  </tbody>
+</table>
+</div>
+<p>What the table shows:</p>
+<ul>
+  <li>At <strong>£2,000 a month</strong>, pay-as-you-go is cheapest, and renting costs about £200 more over 18 months.</li>
+  <li>At <strong>£6,000</strong>, the order reverses. Contract rates win, and renting is already cheaper than pay-as-you-go.</li>
+  <li>At <strong>£15,000</strong>, pay-as-you-go costs around £780 more than renting over 18 months.</li>
+  <li>Buying the terminal beats renting at every size here. Saving £21.60 a month in rental, it earns back its £214.80 cost (with VAT) in about 10 months. That only works if you keep it that long, and if the machine isn't tied to one provider.</li>
+</ul>
+<p>These rates are illustrative, not anyone's quote. Our <a href="{{ url_for('guide', slug='cheapest-card-machine') }}">cheapest card machine guide</a> shows where the break-even point usually falls.</p>
+
+<h2 id="when-renting">When renting makes sense</h2>
+<ul>
+  <li>Your card takings are steady and above a few thousand pounds a month.</li>
+  <li>You want repairs and replacements covered without buying a new machine.</li>
+  <li>You need more than one machine, for example for pay at table, and don't want to buy them all up front.</li>
+  <li>The term is 18 months or less, and it rolls monthly after that.</li>
+</ul>
+
+<h2 id="when-buying">When buying or no contract makes sense</h2>
+<ul>
+  <li>Your takings are low, seasonal or unpredictable.</li>
+  <li>You're just starting out and don't know your volumes yet.</li>
+  <li>You want to be able to walk away at any time.</li>
+  <li>You're buying a terminal that works with more than one provider, so you can switch without replacing it.</li>
+</ul>
+
+<h2 id="short-term">Short-term hire for events and seasonal trade</h2>
+<p>If you only need card payments for a festival, a wedding fair or a summer season, you have two options:</p>
+<ul>
+  <li><strong>A pay-as-you-go reader</strong> is usually cheaper than short-term hire. It costs about the same as a few weeks' rental, and you keep it for next time.</li>
+  <li><strong>Short-term hire</strong> makes more sense if you need several terminals at once, or a guaranteed 4G connection at a busy event.</li>
+</ul>
+<p>Before any event, check two things: that the reader works offline, and that its battery lasts a full day.</p>
+
+<h2 id="lease-traps">Lease traps to avoid</h2>
+<ul>
+  <li><strong>Long, non-cancellable leases.</strong> Before 2023, some businesses signed 36- and 48-month machine leases they couldn't leave. Those can still be running. See <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">how to get out of a card machine contract</a>.</li>
+  <li><strong>Paying many times the machine's value.</strong> £25 a month for four years is £1,200 plus VAT for a machine that might cost £150 to buy.</li>
+  <li><strong>A separate finance agreement.</strong> If the lease is with a finance company rather than your provider, cancelling your payment contract may not end the lease.</li>
+  <li><strong>Automatic renewal.</strong> Check what happens at the end of the term, and diary the notice date.</li>
+</ul>
+
+<h2 id="quote">Get a quote</h2>
+<p>Every number above changes with your rates, your takings and your average sale. Our calculator runs the sum for your business in seconds and shows what you'd pay with each provider that publishes its prices. For a figure you can rely on, send us your statement.</p>
+<div class="callout">
+  <p><strong>Not sure which way to go?</strong> Put your monthly takings into our calculator and see the monthly cost of each option in pounds. Our <a href="{{ url_for('guide', slug='card-machine-fees') }}">fees guide</a> explains every line.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Compare my options</a>
+</div>
+
+<div class="sources">
+  <strong>Notes</strong>
+  <ol>
+    <li>Example rates are illustrative and sit within typical UK market ranges, checked {{ rates_checked_on }}. They are not a quote from any provider.</li>
+    <li>The 18-month first term applies to card machine leases and rentals from the main UK providers and the firms that sell for them, for businesses with up to £10m a year in card turnover. Source: <a href="https://www.psr.org.uk/media/aoia5s0d/ps22-2-camr-remedies-final-decision-october-2022.pdf" rel="noopener">Payment Systems Regulator PS22/2</a>.</li>
+  </ol>
+</div>
+{% endblock %}

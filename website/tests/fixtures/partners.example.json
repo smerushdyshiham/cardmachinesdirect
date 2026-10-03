@@ -1,0 +1,10 @@
+{
+  "_note": "MADE-UP rates for automated tests only (used where the real, confidential instance/partners.json isn't present, e.g. on GitHub). Not anyone's real pricing.",
+  "vat_rate": 0.2,
+  "debit_share": 0.9,
+  "partners": [
+    {"id": "A", "debit": 0.0045, "credit": 0.0085, "auth": 0.02, "monthly": 15.0},
+    {"id": "B", "debit": 0.0052, "credit": 0.0095, "auth": 0.01, "monthly": 12.0},
+    {"id": "C", "debit": 0.0083, "credit": 0.0083, "auth": 0.0, "monthly": 0.0}
+  ]
+}

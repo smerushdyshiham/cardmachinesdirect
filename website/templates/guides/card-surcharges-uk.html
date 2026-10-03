@@ -1,0 +1,58 @@
+{% extends "guide_base.html" %}
+{% block readtime %}5{% endblock %}
+{% block extra_schema %},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is it legal to charge customers for paying by card in the UK?","acceptedAnswer":{"@type":"Answer","text":"Not for consumer cards. Since 13 January 2018 UK businesses have been banned from adding a surcharge to payments made with personal debit, credit and charge cards. Surcharges on business and commercial cards are still allowed, but must not exceed what the card payment actually costs you."}},
+{"@type":"Question","name":"Is a minimum card spend legal in the UK?","acceptedAnswer":{"@type":"Answer","text":"UK law does not ban a minimum card spend. However, card scheme rules and your merchant agreement may restrict it, so check your agreement before putting up a sign."}}
+]}{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> no, you can't add a charge for paying by <strong>personal</strong> debit or credit card. That's been banned in the UK since <strong>13 January 2018</strong>. You can still surcharge <strong>business</strong> cards, but only up to what the payment actually costs you. A minimum card spend isn't illegal, but your card agreement may not allow it.</p>
+
+<h2 id="the-ban">What the 2018 ban covers</h2>
+<p>The Consumer Rights (Payment Surcharges) Regulations 2012, as tightened in 2018, stop businesses from charging consumers extra for paying by:<sup><a href="#s1">1</a></sup></p>
+<ul>
+  <li>personal debit cards;</li>
+  <li>personal credit cards and charge cards, including Amex;</li>
+  <li>most electronic payments, such as PayPal and similar wallets.</li>
+</ul>
+<p>That means no "50p charge for cards", no "2% on card payments" and no hidden equivalent, such as a higher card price shown on the menu. The ban goes further than the EU rules it was based on, because it covers card types the EU left out.</p>
+
+<h2 id="business-cards">Business and commercial cards: the exception</h2>
+<p>Cards issued to a business, such as company credit cards and purchasing cards, are outside the ban. You can add a surcharge to them, but it must not be more than <strong>what accepting that payment actually costs you</strong>. If your business card rate is 2.5%, you can't charge 5%.</p>
+<p>In practice, few small shops and cafés bother, because they can't tell at the till which cards are business cards. It matters more for trade counters, B2B suppliers and anyone invoicing companies.</p>
+
+<h2 id="minimum-spend">Minimum card spend: legal, but check your agreement</h2>
+<p>No UK law bans a "card payments over £5 only" sign. But that isn't the whole story:</p>
+<ul>
+  <li><strong>Card scheme rules</strong> have historically restricted minimum transaction amounts. Your provider has to follow them, and may pass the restriction on to you.</li>
+  <li><strong>Your merchant agreement</strong> may forbid minimums outright. Breaking it could, in theory, put the account at risk.</li>
+</ul>
+<p>Read your agreement, or ask your provider in writing, before putting up a sign. If a minimum is tempting because small sales are expensive, the problem is probably your per-transaction fee. Our <a href="{{ url_for('guide', slug='card-machines-for-hospitality') }}">hospitality guide</a> shows the maths.</p>
+
+<h2 id="alternatives">Cash discounts and service charges: what's allowed</h2>
+<ul>
+  <li><strong>A discount for cash</strong> is generally treated differently from a card surcharge. But if the "card price" is simply the cash price plus a fee, it can amount to a surcharge. Get advice before relying on it.</li>
+  <li><strong>A service charge</strong> applied to every customer, however they pay, isn't a card surcharge. It must be clearly shown before the customer orders.</li>
+  <li><strong>Raising prices for everyone</strong> to cover card costs is allowed. Prices are yours to set.</li>
+</ul>
+
+<h2 id="breaking-rules">What happens if you break the rules</h2>
+<p>Trading Standards enforces the ban, and customers can claim back any surcharge they paid. Breaking your merchant agreement, for example with an unauthorised minimum spend, is a contract matter between you and your provider.</p>
+
+<h2 id="legal-way">The legal way to keep more: lower your fees</h2>
+<p>You can't pass card fees on to most customers, so the only way to keep more of each sale is to pay less for taking it. Most small businesses have room to cut. The <a href="{{ url_for('guide', slug='interchange-fees') }}">underlying costs</a> on UK consumer cards are capped at 0.2% to 0.3%, and the rest is negotiable.</p>
+<p>A business taking £8,000 a month that cuts its rate by 0.3% keeps an extra £24 a month, £288 a year. That's money that surcharging customers would never have brought in legally.</p>
+<div class="callout">
+  <p><strong>Cut the fee instead of passing it on.</strong> See your estimated monthly fees against every provider that publishes its prices, and what our cheapest available option would cost you.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Compare my fees</a>
+</div>
+<p>Not sure what you pay now? Our <a href="{{ url_for('guide', slug='card-machine-fees') }}">fees guide</a> explains every charge, and the <a href="{{ url_for('guide', slug='cheapest-card-machine') }}">cheapest card machine guide</a> shows which deal suits your size.</p>
+
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li id="s1"><a href="https://legislation.gov.uk/uksi/2012/3110/made" rel="noopener">The Consumer Rights (Payment Surcharges) Regulations 2012 (SI 2012/3110)</a>, as amended by the Payment Services Regulations 2017, in force from 13 January 2018.</li>
+  </ol>
+  <p>This guide is general information, not legal advice.</p>
+</div>
+{% endblock %}

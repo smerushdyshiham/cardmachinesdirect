@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Terms of use | Card Machines Direct{% endblock %}
+{% block description %}The terms for using Card Machines Direct: what our estimates are and aren't, how we're paid, and who your card machine contract is with.{% endblock %}
+{% block content %}
+<header class="article-head" data-section="terms-head">
+  <div class="wrap">
+    <h1>Terms of use</h1>
+    <p class="standfirst">The rules for using this site and our comparison service, in plain English.</p>
+  </div>
+</header>
+<div class="wrap article-layout" style="grid-template-columns:minmax(0,1fr)">
+  <article class="prose" data-section="terms-body">
+    <p><em>These terms need a final check by a solicitor before launch, including the company's legal name, registered number and registered address.</em></p>
+
+    <h2 id="who">Who we are</h2>
+    <p>This site is run by Card Machines Direct ("we", "us"). You can contact us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>. By using the site, you agree to these terms.</p>
+
+    <h2 id="service">What we do</h2>
+    <p>We compare card payment providers and match businesses to the cheapest option available to us for how they take payments. We're a broker, not a card payment provider. We don't process payments or hold your money.</p>
+    <p>Using the calculator and asking for a quote is free and puts you under no obligation.</p>
+
+    <h2 id="estimates">Estimates are not quotes</h2>
+    <p>The calculator gives an <strong>estimate</strong>. It uses the takings and average sale you enter, an assumed split of 90% debit and 10% credit cards, and prices checked on the date shown next to the results. Your real costs depend on your actual card mix, your business type and each provider's own checks, so your written quote may be higher or lower than the estimate.</p>
+    <p>Competitor prices come from each provider's own published UK pricing page. They're shown so you can compare. We're not connected with those providers, and their names and trademarks belong to them. Prices can change without notice. If you spot one that's out of date, please tell us.</p>
+
+    <h2 id="contract">Your contract is with the provider</h2>
+    <p>If you decide to switch, you sign a contract with the card payment provider, not with us. That provider's own terms and pricing apply, and they decide whether to accept your application. Read their agreement before you sign, including the contract length and any exit fees.</p>
+
+    <h2 id="money">How we're paid</h2>
+    <p>Providers pay us a commission when a business we introduce signs up with them. You don't pay us anything. We explain more on <a href="{{ url_for('how_we_make_money') }}">how we make money</a>.</p>
+
+    <h2 id="guides">Our guides</h2>
+    <p>Our guides are general information about card payments in the UK. They are not legal, financial or tax advice, and they may not cover your situation. Check anything important with a qualified adviser or with your provider.</p>
+
+    <h2 id="you">What we ask of you</h2>
+    <ul>
+      <li>Give us accurate information when you ask for a quote.</li>
+      <li>Only upload a statement you're entitled to share.</li>
+      <li>Don't misuse the site. For example, don't try to break it, overload it or copy its content in bulk.</li>
+    </ul>
+
+    <h2 id="liability">Our responsibility to you</h2>
+    <p>We take care to keep the site accurate and working, but we can't promise it will always be available or error-free. We're not responsible for the service a provider gives you after you sign with them.</p>
+    <p>Nothing in these terms limits any liability that can't be limited by law.</p>
+
+    <h2 id="privacy">Your data</h2>
+    <p>How we use your information is set out in our <a href="{{ url_for('privacy') }}">privacy and cookies notice</a>.</p>
+
+    <h2 id="changes">Changes and law</h2>
+    <p>We may update these terms from time to time. The version on this page applies. These terms are governed by the law of England and Wales.</p>
+  </article>
+</div>
+{% endblock %}

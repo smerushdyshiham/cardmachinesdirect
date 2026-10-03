@@ -1,0 +1,18 @@
+{# Lucide icon paths (ISC licence), 2px stroke #}
+{% macro icon(name, label=None, cls=None) -%}
+<svg {% if cls %}class="{{ cls }}" {% endif %}viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {% if label %}role="img" aria-label="{{ label }}"{% else %}aria-hidden="true"{% endif %} focusable="false">
+{%- if name == "arrow-right" -%}<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+{%- elif name == "chevron-down" -%}<path d="m6 9 6 6 6-6"/>
+{%- elif name == "upload" -%}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>
+{%- elif name == "check" -%}<path d="M20 6 9 17l-5-5"/>
+{%- elif name == "file" -%}<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+{%- elif name == "lock" -%}<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+{%- endif -%}
+</svg>
+{%- endmacro %}
+
+{% macro price(value, cls="") -%}
+{%- set pounds = value|int -%}
+{%- set pence = ((value - pounds) * 100)|round|int -%}
+<span class="price {{ cls }}"><span class="cur">£</span><span class="pounds">{{ "{:,}".format(pounds) }}</span><span class="pence">.{{ "%02d"|format(pence) }}</span></span>
+{%- endmacro %}

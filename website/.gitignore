@@ -1,0 +1,7 @@
+# Confidential partner rates, the database, customers' uploaded statements and tracking snippets.
+# Never commit these. Copy instance/ to the server by hand and keep it backed up.
+instance/
+
+__pycache__/
+*.pyc
+.env

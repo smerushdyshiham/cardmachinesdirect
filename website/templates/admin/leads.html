@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}Quote requests{% endblock %}
+{% block content %}
+<h1>Quote requests</h1>
+{% include "admin/_filters.html" %}
+<div class="scroll"><table>
+  <thead><tr><th>When</th><th>Who</th><th>Contact</th><th>Business</th><th>Now with</th><th>Knows fees?</th><th>Fees given</th><th class="n">Takings</th><th class="n">Est. saving</th><th>Statement</th><th>Came from</th></tr></thead>
+  <tbody>
+  {% for l in leads %}
+  {% set est = l.estimate|from_json if l.estimate else none %}
+  <tr>
+    <td>{{ l.ts|ago }}</td>
+    <td><strong>{{ l.name }}</strong></td>
+    <td><a href="mailto:{{ l.email }}">{{ l.email }}</a>{% if l.phone %}<br>{{ l.phone }}{% endif %}</td>
+    <td>{{ l.business }}{% if l.business_type %}<br><span class="muted">{{ l.business_type }}</span>{% endif %}</td>
+    <td>{{ l.provider or '–' }}</td>
+    <td>{{ l.knows_fees }}</td>
+    <td>{% if l.debit_pct or l.credit_pct or l.auth_p or l.monthly_fee %}D {{ l.debit_pct or '?' }}% · C {{ l.credit_pct or '?' }}% · {{ l.auth_p or '?' }}p · £{{ l.monthly_fee or '?' }}{% else %}–{% endif %}</td>
+    <td class="n">{{ ('£' ~ l.monthly_volume) if l.monthly_volume else '–' }}</td>
+    <td class="n">{{ est.saving_monthly|gbp if est else '–' }}{% if est %}<br><span class="muted">vs {{ est.basis }}</span>{% endif %}</td>
+    <td>{% if l.statement_file %}<a href="{{ url_for('admin_statement', lead_id=l.id) }}">Download</a>{% else %}–{% endif %}</td>
+    <td>{{ l.source }} / {{ l.medium }}{% if l.campaign %}<br>{{ l.campaign }}{% endif %}{% if l.session_id %}<br><a href="{{ url_for('admin_journey', sid=l.session_id) }}">Journey</a>{% endif %}</td>
+  </tr>
+  {% if l.message %}<tr><td></td><td colspan="10" class="muted">“{{ l.message }}”</td></tr>{% endif %}
+  {% else %}
+  <tr><td colspan="11" class="muted">No quote requests in this period.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

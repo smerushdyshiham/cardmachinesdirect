@@ -1,0 +1,10 @@
+{% from "partials/icons.html" import icon %}
+<section class="cta-band on-ink" data-section="cta" aria-labelledby="cta-title">
+  <div class="wrap inner">
+    <div>
+      <h2 id="cta-title">Get the exact figure. <span>Send us one statement.</span></h2>
+      <p>We'll read every line, find the cheapest option for how you take payments and send you a written quote in pounds. No obligation, and no hard sell if we can't beat your deal.</p>
+    </div>
+    <a class="btn btn-accent" href="{{ url_for('quote') }}" data-cta="band" data-quote-link>Get my exact quote {{ icon("arrow-right") }}</a>
+  </div>
+</section>

@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+{% set sources = r.sources %}
+{% macro pct(a, b) %}{% if b %}{{ (100 * (a or 0) / b)|round(1) }}%{% else %}–{% endif %}{% endmacro %}
+{% macro secs(s) %}{% if s is none %}–{% elif s < 60 %}{{ s|round|int }}s{% else %}{{ (s // 60)|int }}m {{ (s % 60)|round|int }}s{% endif %}{% endmacro %}
+{% block content %}
+<h1>Customer journeys</h1>
+<p class="muted">Every visit, where it came from, what it did and where it left. Email campaign visits show up as source <strong>emailblaster</strong> when links carry <code>utm_source=emailblaster</code>.</p>
+{% include "admin/_filters.html" %}
+
+{% set t = r.totals %}
+<div class="kpis">
+  <div><span class="muted">Visits</span><strong>{{ t.sessions or 0 }}</strong></div>
+  <div><span class="muted">People</span><strong>{{ t.visitors or 0 }}</strong></div>
+  <div><span class="muted">Used calculator</span><strong>{{ pct(t.calc_used, t.sessions) }}</strong></div>
+  <div><span class="muted">Quote requests</span><strong>{{ t.form_submitted or 0 }}</strong></div>
+  <div><span class="muted">Visit → quote</span><strong>{{ pct(t.form_submitted, t.sessions) }}</strong></div>
+  <div><span class="muted">Avg visit</span><strong>{{ secs(t.avg_duration) }}</strong></div>
+</div>
+
+<h2>Funnel</h2>
+{% set steps = [("Visited", t.sessions), ("Used the calculator", t.calc_used), ("Saw a result", t.result_seen), ("Clicked a quote button", t.cta_clicked), ("Opened the quote form", t.quote_viewed), ("Started typing", t.form_started), ("Sent a quote request", t.form_submitted)] %}
+<div class="funnel">
+  {% for label, n in steps %}
+  <div class="f"><span>{{ label }}</span><i style="width: {{ (100 * (n or 0) / (t.sessions or 1))|round(1) }}%"></i><span class="num">{{ n or 0 }} · {{ pct(n, t.sessions) }}</span></div>
+  {% endfor %}
+</div>
+
+<h2>By source</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Source</th><th>Medium</th><th class="n">Visits</th><th class="n">Used calculator</th><th class="n">Opened form</th><th class="n">Quote requests</th><th class="n">Conversion</th><th class="n">Avg visit</th></tr></thead>
+  <tbody>{% for s in r.by_source %}<tr>
+    <td><a href="?days={{ days }}&source={{ s.source }}">{{ s.source }}</a></td><td>{{ s.medium }}</td>
+    <td class="n">{{ s.sessions }}</td><td class="n">{{ s.calc_used }}</td><td class="n">{{ s.quote_viewed }}</td><td class="n">{{ s.form_submitted }}</td>
+    <td class="n">{{ pct(s.form_submitted, s.sessions) }}</td><td class="n">{{ secs(s.avg_duration) }}</td></tr>
+  {% else %}<tr><td colspan="8" class="muted">No visits in this period yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+
+{% if r.campaigns %}
+<h2>Campaigns</h2>
+<table><thead><tr><th>Source</th><th>Campaign</th><th class="n">Visits</th><th class="n">Quote requests</th><th class="n">Conversion</th></tr></thead>
+<tbody>{% for c in r.campaigns %}<tr><td>{{ c.source }}</td><td>{{ c.campaign }}</td><td class="n">{{ c.sessions }}</td><td class="n">{{ c.form_submitted }}</td><td class="n">{{ pct(c.form_submitted, c.sessions) }}</td></tr>{% endfor %}</tbody></table>
+{% endif %}
+
+<div class="grid2">
+  <div>
+    <h2>Where people arrive</h2>
+    <table><thead><tr><th>Entry page</th><th class="n">Visits</th><th class="n">Quote requests</th></tr></thead>
+    <tbody>{% for e in r.entries %}<tr><td>{{ e.page }}</td><td class="n">{{ e.n }}</td><td class="n">{{ e.converted }}</td></tr>{% else %}<tr><td colspan="3" class="muted">–</td></tr>{% endfor %}</tbody></table>
+  </div>
+  <div>
+    <h2>Where people leave <span class="muted" style="font-weight:500">(without asking for a quote)</span></h2>
+    <table><thead><tr><th>Exit page</th><th class="n">Visits</th></tr></thead>
+    <tbody>{% for e in r.exits %}<tr><td>{{ e.page }}</td><td class="n">{{ e.n }}</td></tr>{% else %}<tr><td colspan="2" class="muted">–</td></tr>{% endfor %}</tbody></table>
+  </div>
+</div>
+
+<h2>Time spent on each section</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Page</th><th>Section</th><th class="n">Visits that read it</th><th class="n">Avg time (of those)</th></tr></thead>
+  <tbody>{% for s in r.sections %}<tr><td>{{ s.page }}</td><td>{{ s.section }}</td><td class="n">{{ s.sessions }}</td><td class="n">{{ secs(s.total_s / s.sessions if s.sessions else none) }}</td></tr>
+  {% else %}<tr><td colspan="4" class="muted">–</td></tr>{% endfor %}</tbody>
+</table></div>
+
+<h2>Time on page</h2>
+<table><thead><tr><th>Page</th><th class="n">Page views ended</th><th class="n">Avg time visible</th></tr></thead>
+<tbody>{% for p in r.pages %}<tr><td>{{ p.page }}</td><td class="n">{{ p.views }}</td><td class="n">{{ secs(p.avg_s) }}</td></tr>{% else %}<tr><td colspan="3" class="muted">–</td></tr>{% endfor %}</tbody></table>
+
+<div class="grid2">
+  <div>
+    <h2>Visits per day</h2>
+    <table><thead><tr><th>Day</th><th class="n">Visits</th><th class="n">Quote requests</th></tr></thead>
+    <tbody>{% for d in r.daily|reverse %}<tr><td>{{ d.day }}</td><td class="n">{{ d.sessions }}</td><td class="n">{{ d.leads }}</td></tr>{% else %}<tr><td colspan="3" class="muted">–</td></tr>{% endfor %}</tbody></table>
+  </div>
+  <div>
+    <h2>Devices</h2>
+    <table><tbody>{% for d in r.devices %}<tr><td>{{ d.device }}</td><td class="n">{{ d.n }}</td></tr>{% else %}<tr><td class="muted">–</td></tr>{% endfor %}</tbody></table>
+  </div>
+</div>
+
+<h2>Recent visits</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Started</th><th>Source</th><th>Entered on</th><th>Left on</th><th class="n">Pages</th><th class="n">Length</th><th>Got as far as</th><th><span class="visually-hidden">Journey link</span></th></tr></thead>
+  <tbody>{% for s in sessions %}<tr>
+    <td>{{ s.started|ago }}</td><td>{{ s.source }} / {{ s.medium }}{% if s.campaign %} · {{ s.campaign }}{% endif %}</td>
+    <td>{{ s.entry_page }}</td><td>{{ s.exit_page }}</td><td class="n">{{ s.pages }}</td><td class="n">{{ secs(s.last_seen - s.started) }}</td>
+    <td>{% if s.form_submitted %}<strong>Sent quote request</strong>{% elif s.form_started %}Started form{% elif s.quote_viewed %}Opened form{% elif s.result_seen %}Saw a result{% elif s.calc_used %}Used calculator{% else %}Browsed{% endif %}</td>
+    <td><a href="{{ url_for('admin_journey', sid=s.session_id) }}">Journey</a></td></tr>
+  {% else %}<tr><td colspan="8" class="muted">No visits yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

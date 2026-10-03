@@ -1,0 +1,62 @@
+{% extends "guide_base.html" %}
+{% block readtime %}5{% endblock %}
+{% block extra_schema %},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Do I have to pay a PCI compliance fee?","acceptedAnswer":{"@type":"Answer","text":"Being PCI compliant is required by the card industry for any business that takes card payments. Paying a monthly PCI fee is not a legal requirement. It is a charge some providers add, and many providers do not charge it at all."}},
+{"@type":"Question","name":"What is a PCI non-compliance fee?","acceptedAnswer":{"@type":"Answer","text":"A charge some providers add when you have not completed your annual PCI self-assessment. Completing the questionnaire usually stops it, and for a business that only uses a card machine it often takes under an hour."}}
+]}{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> keeping card data safe is <strong>required</strong>. Paying a monthly PCI fee for it <strong>usually isn't</strong>. If you're paying a "non-compliance" fee on top, you can probably stop it by filling in one questionnaire.</p>
+
+<h2 id="what-it-is">What PCI DSS is</h2>
+<p>PCI DSS (the Payment Card Industry Data Security Standard) is the card industry's set of security rules for any business that takes card payments. It's run by the PCI Security Standards Council, which was set up by the major card schemes.</p>
+<p>It's a <strong>contract rule, not UK law</strong>. You agree to it in your merchant agreement, and your provider is responsible for making sure its customers follow it.</p>
+
+<h2 id="required-vs-fee">Compliance is required. The fee isn't.</h2>
+<p>These are two different things that get muddled on purpose:</p>
+<ul>
+  <li><strong>Being compliant</strong> means following the rules and confirming it once a year, usually with a self-assessment questionnaire. Every card-taking business has to do this.</li>
+  <li><strong>A PCI fee</strong> is a charge your provider chooses to add, often for access to a compliance portal or a scanning service. Plenty of providers don't charge one at all.</li>
+</ul>
+<p>So "PCI compliance: £4.50" on your statement isn't a tax or a regulatory charge. It's part of your provider's pricing, and it's negotiable.</p>
+
+<h2 id="typical-fees">Typical PCI and non-compliance fees in the UK</h2>
+<ul>
+  <li><strong>PCI fee:</strong> typically around £4 to £5 a month, plus VAT. At £4.50, that's <strong>£64.80 a year</strong> with VAT.</li>
+  <li><strong>Non-compliance fee:</strong> added by some providers if you haven't completed your annual questionnaire. It's often higher than the PCI fee itself, and it can be charged on top of it. Check your statement for the exact amount. Charges vary widely between providers.</li>
+</ul>
+<p>Not sure whether you're paying either? Our <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">statement guide</a> shows where these lines usually appear.</p>
+
+<h2 id="become-compliant">How to become compliant</h2>
+<ol>
+  <li><strong>Log in to your provider's compliance portal</strong>, or ask them which questionnaire you need.</li>
+  <li><strong>Pick the right self-assessment questionnaire (SAQ).</strong> Businesses that only take payments on a standalone card machine usually have one of the shortest forms. Online sellers have different forms.</li>
+  <li><strong>Answer the questions honestly.</strong> For a card-machine-only business they're mostly about not writing down card numbers, keeping the machine secure and using the provider's own software. It often takes 15 to 30 minutes.</li>
+  <li><strong>Submit it and keep a copy.</strong> Set a reminder for next year.</li>
+  <li><strong>Check your next statement</strong> to make sure any non-compliance fee has stopped.</li>
+</ol>
+
+<h2 id="v4">PCI DSS version 4: what changed in 2025</h2>
+<p>The current version of the standard is PCI DSS 4.0.1. On <strong>31 March 2025</strong>, the "future-dated" requirements in version 4.0 became mandatory.<sup><a href="#s1">1</a></sup> Most of them affect larger businesses and online sellers: stronger authentication, script monitoring on payment pages, and more regular risk reviews. For a small business that only takes payments on a card machine, the practical change is small. Fill in your questionnaire each year.</p>
+
+<h2 id="stop-paying">How to stop paying PCI fees</h2>
+<ol>
+  <li><strong>Complete your questionnaire</strong> to end any non-compliance fee.</li>
+  <li><strong>Ask your provider to remove the PCI fee.</strong> It's a pricing choice, so it's negotiable, especially if you're thinking of leaving.</li>
+  <li><strong>When you compare providers, include it.</strong> A deal with no PCI fee saves you £64.80 a year with VAT, compared with one at £4.50 a month.</li>
+  <li><strong>Check the contract terms</strong> before switching. Our <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">contract guide</a> explains exit fees and the 18-month rule.</li>
+</ol>
+<div class="callout">
+  <p><strong>PCI is one of six fees on a typical deal.</strong> Send us your statement and we'll work out what all of them cost you, and what the cheapest option available to you would cost instead.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('quote') }}" data-cta="guide-inline">Check my statement</a>
+</div>
+<p>For every other charge you might see, read <a href="{{ url_for('guide', slug='card-machine-fees') }}">card machine fees explained</a>.</p>
+
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li id="s1">PCI Security Standards Council, <a href="https://www.pcisecuritystandards.org/" rel="noopener">PCI DSS v4.0.1</a>. Future-dated requirements became effective on 31 March 2025.</li>
+    <li>Typical PCI fees are drawn from published UK provider pricing and industry guides, checked {{ rates_checked_on }}.</li>
+  </ol>
+</div>
+{% endblock %}

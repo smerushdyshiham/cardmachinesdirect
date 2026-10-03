@@ -1,0 +1,87 @@
+{% extends "guide_base.html" %}
+{% block readtime %}7{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> pick the type of machine your business actually needs first. Then compare total monthly cost, not the price of the machine. Then check the contract length before you sign. Most small businesses overpay because they did those three things in the wrong order, or skipped the last one.</p>
+
+<h2 id="three-types">The three types of card machine</h2>
+<div class="table-wrap wide" tabindex="0" role="region" aria-label="Table: The three types of card machine">
+<table>
+  <thead><tr><th>Type</th><th>What it is</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Pocket reader</strong></td><td>A small reader that pairs with your phone or tablet by Bluetooth. Some phones can now take payments with no reader at all ("tap to pay").</td><td>Low takings, mobile trades, market stalls, occasional card payments.</td></tr>
+    <tr><td><strong>Portable terminal</strong></td><td>A standalone machine with its own screen, Wi-Fi and usually a 4G SIM, so it works anywhere. Most print receipts.</td><td>Restaurants and bars (pay at table), takeaways with delivery, busy shops.</td></tr>
+    <tr><td><strong>Countertop terminal</strong></td><td>A machine fixed at the till, usually wired to the internet and often linked to your till system (EPOS).</td><td>Fixed tills: retail, phone repair shops, hotel reception.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="by-business">Which type suits your business</h2>
+<div class="table-wrap wide" tabindex="0" role="region" aria-label="Table: Which type suits your business">
+<table>
+  <thead><tr><th>Business</th><th>Usually needs</th><th>Watch out for</th></tr></thead>
+  <tbody>
+    <tr><td>Takeaway</td><td>Portable with 4G for deliveries, fast contactless</td><td>Per-transaction fees on lots of small orders</td></tr>
+    <tr><td>Café</td><td>Portable or countertop, tipping</td><td>Authorisation fees on £3–£5 sales</td></tr>
+    <tr><td>Restaurant</td><td>Portable for pay at table, tipping, split bills</td><td>Rental on several machines adding up</td></tr>
+    <tr><td>Bar or pub</td><td>Portable, pre-authorisation for tabs</td><td>Busy-night speed, offline mode</td></tr>
+    <tr><td>Hotel</td><td>Countertop plus pre-authorisation for deposits</td><td>Higher credit and international card mix</td></tr>
+    <tr><td>Barber or salon</td><td>Pocket reader or portable</td><td>Paying a monthly fee on low takings</td></tr>
+    <tr><td>Independent retail</td><td>Countertop linked to your till</td><td>Long contracts tied to the till system</td></tr>
+    <tr><td>Phone repair shop</td><td>Countertop</td><td>Larger one-off sales on credit cards</td></tr>
+    <tr><td>Market stall</td><td>Pocket reader with 4G or phone hotspot</td><td>Battery life, signal, quiet weeks</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Hospitality has the most specific needs. Our <a href="{{ url_for('guide', slug='card-machines-for-hospitality') }}">hospitality guide</a> covers tips, tabs and pre-authorisation in detail.</p>
+
+<h2 id="features">Features that actually matter</h2>
+<ul>
+  <li><strong>Connection.</strong> Wi-Fi is fine behind a till. Anything that leaves the building needs 4G. A built-in SIM may add a monthly charge.</li>
+  <li><strong>Battery.</strong> A portable machine should last a full shift. Ask how many transactions a charge covers.</li>
+  <li><strong>Receipts.</strong> A built-in printer matters for restaurants and anyone whose customers expect paper. Elsewhere, email or text receipts are fine.</li>
+  <li><strong>Tipping.</strong> Tips prompted on the machine are charged at the card rate too, so they count towards your takings.</li>
+  <li><strong>Offline mode.</strong> Lets you take payments when the signal drops, then sends them later. Useful at events, with some risk if a card is declined afterwards.</li>
+  <li><strong>Till (EPOS) link.</strong> Sends the amount from your till to the card machine, so staff can't key in the wrong figure. Check it works with your till before you sign.</li>
+</ul>
+<p>Everything else, from colour screens to loyalty apps, is nice to have. Don't pay a higher rate for it.</p>
+
+<h2 id="buy-rent-payg">Buy, rent or pay-as-you-go</h2>
+<p>There are three ways to pay for a machine:</p>
+<ul>
+  <li><strong>Buy a reader</strong> and pay a flat rate per sale.</li>
+  <li><strong>Rent a terminal</strong> on a contract, with lower rates.</li>
+  <li><strong>Buy a terminal</strong> outright and take a contract rate without paying rental.</li>
+</ul>
+<p>Which is cheapest depends almost entirely on how much you take on card. Our <a href="{{ url_for('guide', slug='card-machine-rental') }}">rent vs buy guide</a> shows 18-month totals at three sizes of business. Our <a href="{{ url_for('guide', slug='cheapest-card-machine') }}">cheapest card machine guide</a> shows where the break-even point usually falls.</p>
+
+<h2 id="payout-speed">Payout speed: when your money arrives</h2>
+<p>"Settlement" means the money from card sales landing in your bank account. Next working day is common. Some providers offer same-day or even instant payouts, sometimes for an extra fee. If cash flow is tight, ask:</p>
+<ul>
+  <li>when money from a Friday night arrives;</li>
+  <li>whether faster payouts cost extra;</li>
+  <li>whether payouts go to your own bank or into an account held by the provider.</li>
+</ul>
+
+<h2 id="before-you-sign">What to check before you sign</h2>
+<ol>
+  <li><strong>Every fee, in writing.</strong> Debit rate, credit rate, business card rate, authorisation fee, rental, PCI and minimum monthly charge, with VAT shown. Our <a href="{{ url_for('guide', slug='card-machine-fees') }}">fees guide</a> lists every charge to ask about.</li>
+  <li><strong>The term.</strong> For most small businesses, a new card machine lease or rental from the main providers can't have a first term longer than 18 months. After that it must end or run month to month. See <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">how to get out of a card machine contract</a>.</li>
+  <li><strong>Who the lease is with.</strong> Sometimes the machine is leased from a separate finance company, and that lease has its own terms.</li>
+  <li><strong>Whether rates can rise.</strong> Some contracts let the provider change your rates with notice. Ask what notice you get.</li>
+  <li><strong>The summary box.</strong> The main UK providers must give you a box summarising your key prices. If you can't find it, ask for it.</li>
+</ol>
+
+<h2 id="compare">Compare your options</h2>
+<p>Once you know the type of machine you need, the only question left is price. Enter your monthly card takings and our calculator shows your estimated fees with every provider that publishes its standard prices, next to our cheapest available option.</p>
+<div class="callout">
+  <p><strong>We're not tied to any one provider.</strong> We compare the market and match you with whichever option works out cheapest for your numbers. If we can't beat your current deal, we'll tell you.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Compare card machines</a>
+</div>
+
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li>Payment Systems Regulator, <a href="https://www.psr.org.uk/news-and-updates/latest-news/news/psr-finalises-plans-to-help-businesses-save-money-on-card-services/" rel="noopener">card-acquiring market remedies</a>: the 18-month limit on card machine lease terms, summary boxes and quote tools.</li>
+  </ol>
+</div>
+{% endblock %}

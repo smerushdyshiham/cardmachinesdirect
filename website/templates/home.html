@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import icon, price %}
+{% block title %}Compare card machine fees UK | Card Machines Direct{% endblock %}
+{% block page_id %}/{% endblock %}
+{% block schema %}
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Card Machines Direct","url":"{{ site_url }}","slogan":"Stop overpaying to get paid."},{"@type":"WebSite","name":"Card Machines Direct","url":"{{ site_url }}"}]}</script>
+{% endblock %}
+{% block content %}
+
+{# ---------------------------------------------------------------- HERO #}
+<section class="hero" data-section="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <h1 id="hero-title">Stop overpaying to <em>get&nbsp;paid.</em></h1>
+    <p class="hero-lede">Most card machine deals hide five or six charges behind one headline rate. Move the slider to what you take on card each month. <strong>We'll show you, in pounds, what it should cost.</strong></p>
+
+    <div class="hero-strip rail" data-calc-mirror data-headline>
+      <div class="label-stock">
+        <div class="strip-input">
+          <label for="hero-volume">You take on card each month</label>
+          <output class="strip-value num" for="hero-volume" data-out="volume">£10,000</output>
+          <input type="range" id="hero-volume" min="0" max="1000" step="1" value="" data-input="volume-slider" aria-describedby="hero-volume-help">
+          <div class="range-scale" id="hero-volume-help" aria-hidden="true"><span>£500</span><span>£150k+</span></div>
+        </div>
+        <div class="strip-price" aria-live="polite">
+          <p class="row-was"><span data-out="compare-label">{{ est.compare_label }}</span><br><span class="was num"><span data-out="compare-monthly">{{ est.compare_monthly|gbp }}</span>/month<span class="strike" aria-hidden="true"></span></span></p>
+          <p class="now-label">Our cheapest option for you</p>
+          <span data-out="ours-price">{{ price(est.ours_monthly) }}</span>
+          <span class="unit">a month, est.</span>
+        </div>
+        <div class="strip-tag">
+          <div class="save-tag" data-show-when="cheaper">
+            <span class="label" data-out="tag-lead">You could save up to</span>
+            <span data-out="saving-price">{{ price(est.saving_monthly) }}</span>
+            <span class="per">a month*</span>
+          </div>
+          <p class="no-save-note" data-show-when="not-cheaper" hidden>We can't beat that right now, and we won't pretend to. <a href="#compare">See the full comparison ↓</a></p>
+        </div>
+      </div>
+      <div class="strip-foot">
+        <span>*An estimate from published prices, checked {{ rates_checked_on }}. Your statement gives the exact figure.</span>
+        <a href="#compare" data-cta="hero-finetune">Fine-tune it and see every provider ↓</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------- PROBLEM #}
+<section class="section" data-section="problem" aria-labelledby="problem-title">
+  <div class="wrap">
+    <h2 id="problem-title">The rate you were sold isn't the rate you pay.</h2>
+    <p class="intro">Card machine salespeople quote one number: the debit card rate. Your statement charges you for a lot more than that. Here's a typical month for a café taking £8,000 on card.</p>
+
+    <div class="statement-grid">
+      <ol class="notes">
+        <li><span class="tag">1</span><div><h3>The headline rate only covers debit cards</h3><p>Credit cards, business cards and overseas cards are charged more, often much more. They're rarely mentioned when you sign.</p></div></li>
+        <li><span class="tag">2</span><div><h3>A fee every time someone taps</h3><p>An authorisation fee is a flat charge per transaction, whatever the amount. At 4.5p on a £12 coffee and cake, it adds almost 0.4% on top of your rate.</p></div></li>
+        <li><span class="tag">3</span><div><h3>Rental that outlives the machine</h3><p>Leases signed before January 2023 could run for four years with no way out. Many are still running.</p></div></li>
+        <li><span class="tag">4</span><div><h3>Paying to be told you're not compliant</h3><p>A monthly "PCI" security fee, plus a penalty if you haven't filled in a yearly form nobody told you about.</p></div></li>
+        <li><span class="tag">5</span><div><h3>VAT on the fixed fees</h3><p>Percentage fees are VAT-free. Rental, authorisation and PCI fees aren't, so add 20% to those.</p></div></li>
+      </ol>
+
+      <figure class="statement label-stock rail" style="margin:0" aria-labelledby="statement-cap">
+        <header><strong>Merchant statement · September</strong><span class="muted">Example</span></header>
+        <ol>
+          <li class="plain"><span class="tag">·</span><span>Debit cards: £7,200.00 at 1.15%</span><span class="amt">£82.80</span></li>
+          <li><span class="tag">1</span><span>Credit cards: £600.00 at 1.95%</span><span class="amt">£11.70</span></li>
+          <li><span class="tag">1</span><span>Business and overseas cards: £200.00 at 2.75%</span><span class="amt">£5.50</span></li>
+          <li><span class="tag">2</span><span>Authorisation fees: 665 at 4.5p</span><span class="amt">£29.93</span></li>
+          <li><span class="tag">3</span><span>Terminal rental</span><span class="amt">£24.99</span></li>
+          <li><span class="tag">4</span><span>PCI compliance fee</span><span class="amt">£4.99</span></li>
+          <li><span class="tag">4</span><span>PCI non-compliance fee</span><span class="amt">£20.00</span></li>
+          <li><span class="tag">5</span><span>VAT on fixed fees</span><span class="amt">£15.98</span></li>
+        </ol>
+        <div class="total"><span>Total charges</span><span class="num">£195.89</span></div>
+        <div class="effective"><span>Sold at 1.15%. Actually paying:</span><strong class="num">2.45%</strong></div>
+        <figcaption class="caption" id="statement-cap">A made-up statement using charges we see often. Your total fees divided by your card takings is your real rate. <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">How to check yours</a>.</figcaption>
+      </figure>
+    </div>
+
+    <div class="myths" data-section="myths">
+      <div><p class="claim">"The card machine is free."</p><p class="truth">It's paid for in your rate or your rental. Nothing about it is free. You're just not shown the price.</p></div>
+      <div><p class="claim">"Your rate is fixed."</p><p class="truth">Intro rates often rise when the first term ends, and a rising rate is easy to miss on a long statement. <a href="{{ url_for('guide', slug='card-machine-fees') }}">What fair looks like</a>.</p></div>
+      <div><p class="claim">"You're stuck in your contract."</p><p class="truth">Since January 2023, new card machine leases can't lock you in for more than 18 months. <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">How to get out</a>.</p></div>
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------ CALCULATOR #}
+<section class="section compare" id="compare" data-section="calculator" aria-labelledby="compare-title">
+  <div class="wrap">
+    <h2 id="compare-title">We check the whole shelf, so you don't have to.</h2>
+    <p class="intro">We aren't tied to one provider. We compare the market and match you to whichever option is genuinely cheapest for how you take payments. Here's how that compares with providers that publish their prices.</p>
+
+    <div class="calc" data-calc>
+      <form class="calc-inputs" data-calc-form onsubmit="return false" novalidate>
+        <div class="field-main">
+          <label for="calc-volume">What you take on card each month</label>
+          <div class="money-input" style="margin-top:.5rem"><span>£</span><input id="calc-volume" inputmode="numeric" autocomplete="off" value="10,000" data-input="volume-text" aria-describedby="calc-volume-help"></div>
+          <input type="range" min="0" max="1000" step="1" data-input="volume-slider" aria-label="Monthly card takings" style="margin-top:.25rem">
+          <p class="help muted" id="calc-volume-help" style="font-size:.85rem">Not sure? Roughly what goes through your card machine, not your cash.</p>
+        </div>
+
+        <details class="more" data-track="atv_open">
+          <summary><span>Average sale <span class="hint">· <span data-out="atv">£20</span></span></span>{{ icon("chevron-down", cls="chev") }}</summary>
+          <div class="body">
+            <p class="help">Lots of small sales means lots of per-transaction fees. A takeaway might average £15, a hotel £150.</p>
+            <div class="money-input"><span>£</span><input id="calc-atv" inputmode="decimal" autocomplete="off" value="20" data-input="atv-text" aria-label="Average sale in pounds"></div>
+            <input type="range" min="2" max="200" step="1" value="20" data-input="atv-slider" aria-label="Average sale">
+            <p class="help" data-out="transactions">That's about 500 card payments a month.</p>
+          </div>
+        </details>
+
+        <details class="more" data-track="current_fees_open">
+          <summary><span>Know what you pay now? <span class="hint">· compare with your current provider</span></span>{{ icon("chevron-down", cls="chev") }}</summary>
+          <div class="body">
+            <p class="help">Copy these off a recent statement, before VAT. Leave a box blank if you don't know it.</p>
+            <div class="fees-grid">
+              <div class="mini-field"><label for="cur-debit">Debit card rate</label><div class="affix"><input id="cur-debit" inputmode="decimal" placeholder="e.g. 1.1" data-current="debit_pct"><span>%</span></div></div>
+              <div class="mini-field"><label for="cur-credit">Credit card rate</label><div class="affix"><input id="cur-credit" inputmode="decimal" placeholder="e.g. 1.9" data-current="credit_pct"><span>%</span></div></div>
+              <div class="mini-field"><label for="cur-auth">Fee per transaction</label><div class="affix"><input id="cur-auth" inputmode="decimal" placeholder="e.g. 4" data-current="auth_p"><span>p</span></div></div>
+              <div class="mini-field"><label for="cur-monthly">Monthly rental</label><div class="affix"><span>£</span><input id="cur-monthly" inputmode="decimal" placeholder="e.g. 20" data-current="monthly"></div></div>
+            </div>
+            <p class="help">The fee per transaction is sometimes called an authorisation fee. Rental includes any PCI or service fees.</p>
+            <p class="help current-note" data-out="current-note" role="status" hidden></p>
+          </div>
+        </details>
+      </form>
+
+      <div class="results" data-results aria-live="polite" aria-busy="false">
+        <div class="loading" role="status"><span class="printer" aria-hidden="true"><i></i></span><span>Checking prices…</span></div>
+        <div class="result-body">
+          <div class="rail">
+            <div class="label-stock headline-ticket" data-headline>
+              <div>
+                <p class="lead" data-out="headline-lead">You could save up to</p>
+                <div class="big"><span data-out="saving-price">{{ price(est.saving_monthly) }}</span></div>
+                <p class="per">a month<sup>*</sup> <span class="year muted" data-out="saving-year">· {{ (est.saving_monthly * 12)|gbp(false) }} a year</span></p>
+                <p class="sub" data-out="headline-sub">Compared with {{ est.compare_label }}.</p>
+              </div>
+              <div class="save-tag" aria-hidden="true">
+                <span class="label">Our cheapest option</span>
+                <span data-out="ours-price">{{ price(est.ours_monthly) }}</span>
+                <span class="per">a month, est.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="shelf">
+            <h3>What the same month would cost elsewhere</h3>
+            <p class="shelf-sub" data-out="shelf-sub">Monthly fees at £10,000 on card, cheapest first. Only providers that publish a standard rate are shown.</p>
+            <ol data-out="rows">
+              {% set top = est.rows|map(attribute='monthly')|max %}
+              {% for r in est.rows %}
+              <li class="{{ r.kind }}">
+                <div class="who"><strong>{{ r.name }}</strong><span>{{ r.plan }}</span></div>
+                <div class="bar" aria-hidden="true"><i style="width: {{ (r.monthly / top * 100)|round(1) }}%"></i></div>
+                <div class="cost"><strong>{{ r.monthly|gbp }}</strong>{% if r.per_100 is defined %}<span>{{ r.per_100|gbp }} per £100</span>{% else %}<span>est., before your statement</span>{% endif %}</div>
+              </li>
+              {% endfor %}
+            </ol>
+          </div>
+
+          <div class="result-cta">
+            <p data-out="cta-text">Want the exact number? Send us a statement and we'll check every line.</p>
+            <a class="btn btn-accent" href="{{ url_for('quote') }}" data-cta="results" data-quote-link>Get my exact quote {{ icon("arrow-right") }}</a>
+          </div>
+
+          <div class="fineprint">
+            <p>*Estimates, not quotes. We assume 90% of your card takings are on debit cards and 10% on credit cards, and add VAT to fixed fees where a provider's prices exclude it. Card reader purchase costs aren't included. Your real saving depends on your card mix, so we need a statement to give you an exact figure.</p>
+            <p>Competitor prices come from each provider's own UK pricing page, checked {{ rates_checked_on }}. A provider is left out at volumes its published rate doesn't cover. Sources:
+              {% for c in est.rows if c.kind == 'competitor' %}<a href="{{ c.source }}" rel="nofollow noopener" target="_blank">{{ c.name }}</a>{{ ", " if not loop.last }}{% endfor %}.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------ HOW IT WORKS #}
+<section class="section" data-section="how-it-works" aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title">From "am I overpaying?" to a written quote.</h2>
+    <ol class="steps">
+      <li><h3>Tell us roughly what you take</h3><p>The calculator above takes a minute. It shows whether there's likely to be a saving worth chasing.</p></li>
+      <li><h3>Send us a statement</h3><p>A photo or PDF of your latest card statement. We read every line, including the charges hidden in "other fees".</p></li>
+      <li><h3>Get your quote in pounds</h3><p>We find the cheapest available option for how you take payments and set out every fee in writing. Switch only if the numbers work for you.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="section on-ink" data-section="how-we-make-money" aria-labelledby="money-title">
+  <div class="wrap split">
+    <div>
+      <h2 id="money-title">How we make money, plainly.</h2>
+      <div class="money-flow">
+        <p><strong>The provider pays us, not you.</strong> We get a commission when you sign, then a small share of the fees each month you stay.</p>
+        <p>That means we only do well if you stay, and you'll only stay on a deal that's actually cheap. So we match you on price, not on who pays us most.</p>
+        <p><a href="{{ url_for('how_we_make_money') }}">More about how we're paid</a></p>
+      </div>
+    </div>
+    <div>
+      <h2>Sometimes we can't beat your deal.</h2>
+      <div class="money-flow">
+        <p>If you're already on a good rate, we'll tell you. No hard sell, and no pretend saving to get you to switch.</p>
+        <p>The calculator shows that too. Put in your current fees and you'll see whether we can actually help.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ----------------------------------------------------------------- FAQ #}
+<section class="section" data-section="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <h2 id="faq-title">Straight answers.</h2>
+    <div class="faq">
+      <details><summary>Is the saving above a quote?</summary><div class="a"><p>No. It's an estimate built from your monthly takings, your average sale and a typical 90/10 split between debit and credit cards. Your real card mix changes the answer, which is why we ask for a statement before we quote.</p></div></details>
+      <details><summary>How is the estimate worked out?</summary><div class="a"><p>For each provider: debit takings times the debit rate, plus credit takings times the credit rate, plus the number of transactions times any per-transaction fee, plus the monthly fee. VAT is added to the fixed fees where a provider's price leaves it out. We do the same sum for our cheapest option.</p></div></details>
+      <details><summary>Why don't you say which provider it is?</summary><div class="a"><p>Because the answer changes with your numbers. The cheapest option for a takeaway doing £4,000 a month isn't the cheapest for a hotel doing £60,000. We match you to the cheapest available option for your business and put every fee in writing, so you can judge it on price alone.</p></div></details>
+      <details><summary>Will I need a new card machine?</summary><div class="a"><p>Usually, yes. Each provider supplies its own machines. Your quote shows what the machine costs, if anything, so it's in the comparison.</p></div></details>
+      <details><summary>I'm in a contract. Is there any point?</summary><div class="a"><p>Often, yes. Check when your term ends and what leaving early would cost. Sometimes the saving covers the exit fee within months. <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">Our guide to leaving a contract</a> walks through it.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight" data-section="guides" aria-labelledby="guides-title" style="padding-top:0">
+  <div class="wrap">
+    <h2 id="guides-title" style="font-size:var(--step-2)">Know what you're paying for</h2>
+    <ul class="guide-list">
+      {% for g in guides %}
+      <li><a href="{{ url_for('guide', slug=g.slug) }}"><span><strong>{{ g.short }}</strong><span>{{ g.teaser }}</span></span>{{ icon("arrow-right") }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+{% include "partials/cta_band.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ asset('js/calculator.js') }}" defer></script>
+{% endblock %}

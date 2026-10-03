@@ -1,0 +1,82 @@
+{% extends "guide_base.html" %}
+{% block readtime %}7{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> ignore the rates printed on your statement for a moment. Find two numbers: <strong>total fees</strong> and <strong>total card takings</strong>. Divide the first by the second. That's your <strong>effective rate</strong>, what you really pay per pound taken. Everything else on the statement explains where it came from.</p>
+
+<h2 id="what-it-is">What a merchant statement is</h2>
+<p>Your merchant statement is the monthly bill from the company that processes your card payments. It lists what you took on card and every fee charged against it. It usually comes as a PDF by email or in an online portal, and it's often several pages long. That's not an accident: the more pages, the less likely you are to read it.</p>
+
+<h2 id="five-sections">The five sections on most UK statements</h2>
+<ol>
+  <li><strong>Header.</strong> Your business name, the statement period and your merchant ID (MID), the number that identifies your account.</li>
+  <li><strong>Settlements or deposits.</strong> The money paid into your bank, usually day by day. Sometimes fees are taken from each deposit; sometimes they're collected once a month by direct debit.</li>
+  <li><strong>Card summary.</strong> Your takings split by card type: consumer debit, consumer credit, business cards, and sometimes non-UK cards.</li>
+  <li><strong>Transaction charges.</strong> The percentage charged on each card type, and any per-transaction fee.</li>
+  <li><strong>Other or fixed charges.</strong> Rental, PCI fees, minimum monthly charges, and VAT on the parts that carry it.</li>
+</ol>
+
+<h2 id="sample">A sample statement, explained</h2>
+<p>Here is a made-up statement for a café taking £12,400 a month on card across 620 transactions, an average of £20 a sale. The provider name is invented. The layout is typical.</p>
+<div class="worked">
+  <strong>Example Payments Ltd · Statement for September · MID 0000000000</strong>
+  <dl>
+    <dt>Consumer debit: £10,840 × 1.29%</dt><dd>£139.84</dd>
+    <dt>Consumer credit: £1,160 × 1.89%</dt><dd>£21.92</dd>
+    <dt>Business cards: £400 × 2.60%</dt><dd>£10.40</dd>
+    <dt>Authorisation: 620 × 4p</dt><dd>£24.80</dd>
+    <dt>Terminal rental</dt><dd>£22.50</dd>
+    <dt>PCI compliance</dt><dd>£4.50</dd>
+    <dt>VAT at 20% on £51.80</dt><dd>£10.36</dd>
+    <dt class="tot">Total charges</dt><dd class="tot">£234.32</dd>
+  </dl>
+</div>
+<p>What to notice:</p>
+<ul>
+  <li><strong>The debit rate looks low, at 1.29%.</strong> But fixed fees and VAT add another £62.16 a month.</li>
+  <li><strong>The business card line is small</strong> but charged at double the debit rate. Business cards have no fee cap. Our <a href="{{ url_for('guide', slug='interchange-fees') }}">interchange guide</a> explains why.</li>
+  <li><strong>VAT is applied only to the fixed fees.</strong> The percentage charges are VAT-exempt.</li>
+</ul>
+
+<h2 id="effective-rate">Work out your effective rate in two minutes</h2>
+<ol>
+  <li>Find <strong>total charges</strong> for the month, including VAT. Here: £234.32.</li>
+  <li>Find <strong>total card takings</strong> for the same month. Here: £12,400.</li>
+  <li>Divide, then multiply by 100: <strong>£234.32 ÷ £12,400 × 100 = 1.89%</strong>.</li>
+</ol>
+<p>So this café pays 1.89% overall, well above its "1.29%" headline rate. That's £2,811.84 a year. If fees come off each deposit instead of in one bill, add up the fees column for the month instead.</p>
+
+<h2 id="red-flags">Red flags</h2>
+<ul>
+  <li><strong>"Non-compliance" fees.</strong> You're being charged because a security questionnaire wasn't done. This is usually fixable in under an hour. See our <a href="{{ url_for('guide', slug='pci-compliance-fees') }}">PCI guide</a>.</li>
+  <li><strong>A minimum monthly service charge.</strong> In quieter months, you pay for fees you didn't run up.</li>
+  <li><strong>Rates that have crept up.</strong> Compare this statement with one from a year ago. Some contracts allow rises with notice.</li>
+  <li><strong>Separate authorisation fees</strong> on top of a "low" percentage, especially if your sales are small.</li>
+  <li><strong>High business or non-UK card rates.</strong> Fine if those cards are rare. Expensive if they're a big share of your takings.</li>
+  <li><strong>Charges you don't recognise.</strong> "Service", "account" or "statement" fees. Ask what each one is for.</li>
+</ul>
+<p>Our <a href="{{ url_for('guide', slug='card-machine-fees') }}">fees guide</a> explains every standard charge and what's typical.</p>
+
+<h2 id="good-rate">What's a good effective rate?</h2>
+<p>It depends on your size, your average sale and your card mix, so there's no single right number. As a rough guide for a small UK business taking cards in person:</p>
+<ul>
+  <li><strong>Above 1.75%</strong> is close to what a pay-as-you-go reader costs, so a contract at this level is usually worth challenging.</li>
+  <li><strong>Between 1% and 1.75%</strong> is common, and there's often still room to cut.</li>
+  <li><strong>Below 1%</strong> is usually only available to businesses with good volumes and mostly debit cards.</li>
+</ul>
+<p>If your contract is the problem rather than the rates, read <a href="{{ url_for('guide', slug='cancel-card-machine-contract') }}">how to get out of a card machine contract</a>.</p>
+
+<h2 id="statement-check">Get a free statement check</h2>
+<p>If you'd rather not do the maths, send us your latest statement. A PDF or a phone photo is fine. We'll work out your effective rate and what the cheapest option available to you would cost. We'll also tell you plainly if you're already on a good deal.</p>
+<div class="callout">
+  <p><strong>Upload your statement, get a real number.</strong> No obligation, and we'll tell you if we can't beat it.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('quote') }}" data-cta="guide-inline">Upload my statement</a>
+</div>
+
+<div class="sources">
+  <strong>Notes</strong>
+  <ol>
+    <li>The sample statement is invented for illustration. It does not show any real provider's rates.</li>
+    <li>Since July 2023, the main UK card providers have had to give businesses a summary box of key prices. Source: <a href="https://www.psr.org.uk/news-and-updates/latest-news/news/psr-finalises-plans-to-help-businesses-save-money-on-card-services/" rel="noopener">Payment Systems Regulator</a>.</li>
+  </ol>
+</div>
+{% endblock %}

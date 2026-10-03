@@ -1,0 +1,77 @@
+{% extends "guide_base.html" %}
+{% block readtime %}7{% endblock %}
+{% block body %}
+<p class="answer"><strong>The short version:</strong> hospitality needs more from a card machine than most trades: pay at table, tips, split bills and tabs. It also has a cost problem most trades don't: lots of small sales. When your average sale is £4, a 3p fee per transaction adds 0.75% to every payment. Check that fee first.</p>
+
+<h2 id="needs">What hospitality needs from a card machine</h2>
+<ul>
+  <li><strong>Pay at table.</strong> Portable machines with Wi-Fi or 4G, so the bill comes to the customer.</li>
+  <li><strong>Tipping on the machine.</strong> Tip prompts raise tips. They're charged at your card rate too, so they count as takings.</li>
+  <li><strong>Split bills.</strong> Several cards on one bill, without staff doing sums.</li>
+  <li><strong>Pre-authorisation.</strong> Holding an amount on a card for a bar tab or a hotel deposit, then taking the final amount later.</li>
+  <li><strong>A link to your till (EPOS).</strong> The bill goes straight from the till to the machine, so nobody keys in the wrong amount.</li>
+  <li><strong>More than one machine.</strong> A busy restaurant may need three or four. Rental on each adds up.</li>
+</ul>
+
+<h2 id="takeaways">Takeaways: speed, deliveries and small orders</h2>
+<p>Takeaways need fast contactless at the counter and a machine with 4G for deliveries. The cost to watch is the per-transaction fee. A takeaway with 600 orders a month at 3p each pays £21.60 a month in authorisation fees with VAT. On a deal with no per-transaction fee, that line is £0.</p>
+
+<h2 id="restaurants-cafes-bars">Restaurants, cafés and bars</h2>
+<ul>
+  <li><strong>Cafés</strong> have the smallest average sale in hospitality, so per-transaction fees hurt most. A deal with a slightly higher percentage and no authorisation fee can be cheaper.</li>
+  <li><strong>Restaurants</strong> have larger bills, so the percentage matters more than the fixed fees. Pay at table and tipping are essentials.</li>
+  <li><strong>Bars and pubs</strong> need speed on busy nights and pre-authorisation for tabs. Make sure the machine can work offline if the signal drops.</li>
+</ul>
+
+<h2 id="hotels">Hotels: pre-authorisation and deposits</h2>
+<p>Hotels hold card amounts at check-in and take the final bill at check-out. They also see more credit cards, more business cards and more foreign cards than most trades, and those cost more to accept. Check these rates as closely as the debit rate. Our <a href="{{ url_for('guide', slug='interchange-fees') }}">interchange guide</a> explains why business and foreign cards cost more.</p>
+
+<h2 id="small-sales">Why small sales make per-transaction fees matter</h2>
+<p>An authorisation fee is a flat charge each time a payment is approved. It's the same on a £4 coffee as on a £60 meal, so it hits small sales hardest:</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Table: Why small sales make per-transaction fees matter">
+<table>
+  <thead><tr><th>Average sale</th><th class="n">A 3p fee adds</th></tr></thead>
+  <tbody>
+    <tr><td>£4</td><td class="n">0.75%</td></tr>
+    <tr><td>£6</td><td class="n">0.50%</td></tr>
+    <tr><td>£12</td><td class="n">0.25%</td></tr>
+    <tr><td>£25</td><td class="n">0.12%</td></tr>
+    <tr><td>£60</td><td class="n">0.05%</td></tr>
+  </tbody>
+</table>
+</div>
+<p>That's before VAT, which is usually added to these fees.</p>
+
+<h2 id="monthly-costs">Typical monthly costs by venue size</h2>
+<p>Here's the same illustrative contract applied to three venues. The contract is 1.25% debit, 1.75% credit, a 3p authorisation fee and £20 a month rental, with VAT on the fixed fees. Nine in ten payments are on debit in every case.</p>
+<div class="table-wrap wide" tabindex="0" role="region" aria-label="Table: Typical monthly costs by venue size">
+<table>
+  <thead><tr><th>Venue</th><th class="n">Card takings</th><th class="n">Average sale</th><th class="n">Monthly cost</th><th class="n">Effective rate</th><th class="n">Without the 3p fee</th></tr></thead>
+  <tbody>
+    <tr><td>Coffee shop</td><td class="n">£6,000</td><td class="n">£4.50</td><td class="n">£150.00</td><td class="n">2.50%</td><td class="n">£102.00</td></tr>
+    <tr><td>Takeaway</td><td class="n">£9,000</td><td class="n">£14</td><td class="n">£164.14</td><td class="n">1.82%</td><td class="n">£141.00</td></tr>
+    <tr><td>Restaurant</td><td class="n">£22,000</td><td class="n">£48</td><td class="n">£326.50</td><td class="n">1.48%</td><td class="n">£310.00</td></tr>
+  </tbody>
+</table>
+</div>
+<p>On the same headline rate, the coffee shop pays 2.5% overall and the restaurant 1.48%. For the coffee shop, the 3p fee alone costs <strong>£48 a month, £576 a year</strong>. Removing it is worth more than a big cut in the percentage.</p>
+<p>These figures are illustrative, not anyone's quote. Our <a href="{{ url_for('guide', slug='card-machine-fees') }}">fees guide</a> explains each charge.</p>
+
+<h2 id="contactless">Contactless limits after March 2026</h2>
+<p>The UK contactless limit had been £100 since October 2021. From <strong>19 March 2026</strong>, the Financial Conduct Authority removed the regulatory limit and let card issuers set their own.<sup><a href="#s1">1</a></sup> So far, the major UK banks have kept £100. Higher limits will also need card machines and scheme rules to catch up.</p>
+<p>For now, plan on £100. Above that, customers insert their card or use a phone wallet, which has no fixed limit.</p>
+
+<h2 id="compare">Compare for your venue</h2>
+<p>Put in your monthly card takings and your average sale (tap "Average sale" under the main slider), and see your estimated fees against every provider that publishes its prices. If you're choosing a machine for the first time, read our <a href="{{ url_for('guide', slug='card-machine-for-small-business') }}">small business buyer's guide</a>. If you're weighing rental against buying, read <a href="{{ url_for('guide', slug='card-machine-rental') }}">rent vs buy</a>.</p>
+<div class="callout">
+  <p><strong>Small sales, big fees?</strong> Set your average sale in our calculator and see what per-transaction fees are costing you.</p>
+  <a class="btn btn-accent btn-sm" href="{{ url_for('home') }}#compare" data-cta="guide-inline">Compare for my venue</a>
+</div>
+
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li id="s1">Financial Conduct Authority, <a href="https://www.fca.org.uk/publication/handbook/handbook-notice-136.pdf" rel="noopener">Handbook Notice 136</a> (December 2025, in force 19 March 2026), and <a href="https://www.fca.org.uk/publications/policy-statements/ps21-2-amendments-single-and-cumulative-transaction-thresholds-contactless-payments" rel="noopener">PS21/2</a> on the earlier £100 limit.</li>
+  </ol>
+</div>
+{% endblock %}
