@@ -46,8 +46,8 @@ services:
         sync: false
       - key: SMTP_HOST
         sync: false
-      - key: SMTP_PORT
-        value: "587"
+      - key: SMTP_PORT   # 465 = SSL from the start (what our mail server uses); 587 would use STARTTLS
+        value: "465"
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASSWORD
