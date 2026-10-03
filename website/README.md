@@ -39,19 +39,22 @@ If Chromium isn't installed, the browser tests are skipped rather than failed.
 
 ## Deploy
 
-Any host that runs Python 3.11+ works, such as Render, Railway or a VPS.
+The live site runs on **Render**, set up from `render.yaml` at the repo root:
+- Starter instance in Frankfurt, with a 1GB disk at `/var/data`;
+- deploys automatically once a change on `main` has passed the GitHub "Tests" check.
 
-```
-gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT
-```
+**Set by hand in the Render dashboard, never in the repo:**
 
-The `instance/` folder holds the confidential rates, the database and uploaded statements. It must:
+- **Secret Files** (Environment → Secret Files):
+  - `partners.json`: the confidential partner rates, in the same format as `tests/fixtures/partners.example.json`;
+  - `head.html` / `body_end.html` (optional): EmailBlaster tracking code.
+- **Environment:**
+  - `ADMIN_PASSWORD`;
+  - `LEADS_EMAIL` and the `SMTP_*` settings for lead alerts.
 
-- sit on persistent disk, so it survives deploys;
-- never be publicly served;
-- be backed up.
+After the first deploy, open `/admin/diagnostics`. It should show `is_secure: true`, `partners_file_found: true` and your own IP address as `client_ip_used_for_limits`. If the IP shown is Render's rather than yours, set `CLIENT_IP_HEADER` to whichever header in that page holds your real IP.
 
-To keep it somewhere else, set `INSTANCE_DIR`.
+Anywhere else (a VPS, Railway): `pip install -r requirements.txt`, then `gunicorn app:app --workers 2 --threads 4 --bind 0.0.0.0:$PORT`. The data directory (`INSTANCE_DIR`) must be on persistent disk, never publicly served, and backed up.
 
 ### Environment variables
 
@@ -65,6 +68,9 @@ To keep it somewhere else, set `INSTANCE_DIR`.
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `LEADS_EMAIL` | No | Emails you each new quote request. Leads are always saved to the database, even if email fails. |
 | `CONTACT_EMAIL` | No | Email address shown on the site. |
 | `INSTANCE_DIR` | No | Where `instance/` lives. |
+| `PARTNERS_FILE` | No | Path to the partner rates file. Default `INSTANCE_DIR/partners.json`. On Render: `/etc/secrets/partners.json`. |
+| `SNIPPETS_DIR` | No | Folder holding `head.html` and `body_end.html` (marketing code). Default `INSTANCE_DIR/snippets`. On Render: `/etc/secrets`. |
+| `CLIENT_IP_HEADER` | No | A header your host sets with the visitor's real IP, used for rate limits. Only set it after checking `/admin/diagnostics`. |
 | `TRUSTED_PROXIES` | No | How many proxies sit in front of the app. Default `1`, which is right for Render or Railway. Use `0` if nothing sits in front. It stops visitors faking their IP to dodge rate limits. |
 | `FORCE_HTTPS` | No | Default `1`: plain-HTTP requests are redirected to HTTPS, and browsers are told to stay on HTTPS (HSTS). Local addresses are never redirected. Set to `0` only if your host can't serve HTTPS. |
 | `ANALYTICS_CONSENT_REQUIRED` | No | Default `0`: the site's own visit counting runs for everyone, and visitors can opt out on the privacy page. This relies on the UK exemption for analytics. Set to `1` to count visits only after "That's fine". Google Analytics and EmailBlaster always wait for consent either way. |

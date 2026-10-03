@@ -1,0 +1,56 @@
+# Render Blueprint for cardmachinesdirect.co.uk. Render reads this when you create the service with
+# "New → Blueprint" and keeps the service in step with it on every change to main.
+#
+# Set by hand in the Render dashboard (never in this file or the repo):
+#   - Secret File  partners.json   the confidential partner rates
+#   - Secret File  head.html       EmailBlaster tracking code (optional, add when ready)
+#   - ADMIN_PASSWORD and the SMTP_* / LEADS_EMAIL settings (Render asks for them when the Blueprint is created)
+services:
+  - type: web
+    name: cardmachinesdirect
+    runtime: python
+    plan: starter              # not "free": free instances sleep after 15 minutes and can't keep a disk
+    region: frankfurt          # closest Render region to UK visitors
+    rootDir: website
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --threads 4 --timeout 60 --bind 0.0.0.0:$PORT --access-logfile -
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass   # deploy a new commit on main only after the GitHub "Tests" check passes
+    disk:
+      name: data
+      mountPath: /var/data       # quote requests, uploaded statements and analytics live here; snapshotted daily
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: INSTANCE_DIR
+        value: /var/data/instance
+      - key: PARTNERS_FILE
+        value: /etc/secrets/partners.json
+      - key: SNIPPETS_DIR
+        value: /etc/secrets
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SITE_URL
+        value: https://cardmachinesdirect.co.uk
+      - key: FORCE_HTTPS
+        value: "1"
+      - key: TRUSTED_PROXIES
+        value: "1"
+      - key: ADMIN_PASSWORD
+        sync: false              # Render prompts for it; choose a long, unique password
+      - key: CONTACT_EMAIL
+        value: hello@cardmachinesdirect.co.uk
+      # Email alerts for new quote requests. Leave blank for now; filled in at the email stage.
+      - key: LEADS_EMAIL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
