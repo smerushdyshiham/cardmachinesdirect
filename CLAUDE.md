@@ -121,7 +121,7 @@ Live at **https://cardmachinesdirect.co.uk**, on Render, deploying from GitHub. 
 
 ## UX rules (from the laws-of-UX review, 6 Oct 2026)
 
-- **First screen:** at every size from a 320 × 568 phone to desktop (tablets included), the saving tag and the hero **Get my exact quote** button must be visible without scrolling and not under the cookie banner. Tests enforce this at 6 sizes.
+- **First screen:** at every size from a 320 × 568 phone to desktop (tablets and 1280 × 720 / 1024 × 768 laptops included), the saving tag and the hero **Get my exact quote** button must be visible without scrolling and not under the cookie banner. Tests enforce this at 8 sizes. (Unusually short windows, under about 700px tall on a laptop, still show the saving; the button may be partly below.)
 - **Cookie banner:** on every screen size it waits for the first scroll, or 20 seconds, so it never covers the result or the quote button. Nothing that needs consent loads before an answer. On 320px-wide short screens the struck-through competitor price line is hidden, so the hero fits.
 - **Labels:** exactly two, everywhere. **Compare my fees** (calculator) and **Get my exact quote** (quote form; "Get my quote" in the header on phones). The form's own button is "Send for my quote".
 - **Tap targets:** every control is at least 44px tall. Competitor notes in the chart open on tap or focus, not just hover.

@@ -24,7 +24,7 @@ AXE = (ROOT / "tests" / "vendor" / "axe.min.js").read_text(encoding="utf-8")
 PUBLIC = ["/", "/quote", "/guides/", "/privacy", "/terms", "/how-we-make-money", "/quote/thanks"] + \
          [f"/guides/{g['slug']}" for g in GUIDES]
 WIDTHS = {"desktop": (1366, 900), "tablet": (768, 1024), "phone": (390, 844), "small phone": (360, 740),
-          "iphone se": (375, 667), "tiny phone": (320, 568)}
+          "iphone se": (375, 667), "tiny phone": (320, 568), "laptop": (1024, 768), "short laptop": (1280, 720)}
 PDF = b"%PDF-1.4\n% test statement\n"
 
 
@@ -172,7 +172,7 @@ class LayoutAndQualityTest(BrowserCase):
 
     def test_saving_and_quote_button_on_the_first_screen(self):
         """Peak-end / Fitts: the saving and the next step are visible without scrolling, on every phone size."""
-        for name in ("desktop", "tablet", "phone", "small phone", "iphone se", "tiny phone"):
+        for name in ("desktop", "laptop", "short laptop", "tablet", "phone", "small phone", "iphone se", "tiny phone"):
             page = self.new_page(name)
             self.go(page, "/")
             box = page.evaluate("""() => { const t = document.querySelector('.hero-strip .save-tag').getBoundingClientRect(),
