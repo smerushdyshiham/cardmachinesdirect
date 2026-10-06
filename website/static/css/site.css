@@ -206,6 +206,18 @@ p { margin: 0; text-wrap: pretty; }
   .hero-strip .save-tag { margin-left: var(--space-2); }
   .strip-price .price { font-size: 2.3rem; }
 }
+@media (min-width: 521px) and (max-height: 820px) {
+  /* Short, wide screens (1024 x 768 laptops, landscape tablets): less air above the hero,
+     so the quote button under the saving is on the first screen too. */
+  .hero { padding-top: var(--space-6); padding-bottom: var(--space-7); }
+  .hero-lede { margin-top: var(--space-4); }
+  .hero-strip { margin-top: var(--space-5); }
+}
+@media (min-width: 521px) and (max-height: 740px) {
+  /* Very short screens (1280 x 720 laptops): the shorter intro and a slightly smaller headline. */
+  .hero h1 { font-size: clamp(2.6rem, 2rem + 3vw, 3.6rem); }
+  .hero-lede .lede-more { display: none; }
+}
 @media (max-width: 340px) {
   /* Very small phones: no room side by side, so the tag stacks under the price. */
   .hero-strip .label-stock { grid-template-columns: 1fr; }
