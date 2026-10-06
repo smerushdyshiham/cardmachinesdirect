@@ -11,7 +11,7 @@
 <section class="hero" data-section="hero" aria-labelledby="hero-title">
   <div class="wrap">
     <h1 id="hero-title">Stop overpaying to <em>get&nbsp;paid.</em></h1>
-    <p class="hero-lede">Most card machine deals hide five or six charges behind one headline rate. Move the slider to what you take on card each month. <strong>We'll show you, in pounds, what it should cost.</strong></p>
+    <p class="hero-lede"><span class="lede-more">Most card machine deals hide five or six charges behind one headline rate. </span>Move the slider to what you take on card each month. <strong>We'll show you, in pounds, what it should cost.</strong></p>
 
     <div class="hero-strip rail" data-calc-mirror data-headline>
       <div class="label-stock">
@@ -34,6 +34,10 @@
             <span class="per">a month*</span>
           </div>
           <p class="no-save-note" data-show-when="not-cheaper" hidden>We can't beat that right now, and we won't pretend to. <a href="#compare">See the full comparison ↓</a></p>
+        </div>
+        <div class="strip-cta">
+          <a class="btn btn-accent" href="{{ url_for('quote') }}" data-cta="hero-quote" data-quote-link>Get my exact quote {{ icon("arrow-right") }}</a>
+          <span>Free, no obligation. We reply within 24 hours.</span>
         </div>
       </div>
       <div class="strip-foot">
@@ -151,10 +155,11 @@
             <ol data-out="rows">
               {% set top = est.rows|map(attribute='monthly')|max %}
               {% for r in est.rows %}
-              <li class="{{ r.kind }}">
+              <li class="{{ r.kind }}"{% if r.note %} tabindex="0" aria-describedby="tip-{{ loop.index }}"{% endif %}>
                 <div class="who"><strong>{{ r.name }}</strong><span>{{ r.plan }}</span></div>
                 <div class="bar" aria-hidden="true"><i style="width: {{ (r.monthly / top * 100)|round(1) }}%"></i></div>
                 <div class="cost"><strong>{{ r.monthly|gbp }}</strong>{% if r.per_100 is defined %}<span>{{ r.per_100|gbp }} per £100</span>{% else %}<span>est., before your statement</span>{% endif %}</div>
+                {% if r.note %}<span class="tip" role="tooltip" id="tip-{{ loop.index }}">{{ r.note }}</span>{% endif %}
               </li>
               {% endfor %}
             </ol>

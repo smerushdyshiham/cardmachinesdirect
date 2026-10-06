@@ -1,14 +1,34 @@
 {% extends "base.html" %}
 {% from "partials/icons.html" import icon %}
 {% block title %}Thanks, we've got it | Card Machines Direct{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  // Remind them of the saving the calculator showed (only if it found one).
+  try {
+    var s = JSON.parse(sessionStorage.getItem("cmd-last-saving") || "null");
+    if (s && s > 0) {
+      document.querySelector("[data-thanks-saving]").textContent = "£" + Math.round(s).toLocaleString("en-GB");
+      document.querySelector("[data-thanks-estimate]").hidden = false;
+    }
+  } catch (e) {}
+})();
+</script>
+{% endblock %}
 {% block page_id %}/quote/thanks{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
 <section class="section" data-section="thanks">
   <div class="wrap" style="max-width:46rem">
     <h1 style="font-size:var(--step-4)">Got it. <span style="color:var(--muted)">We're on it.</span></h1>
-    <p class="intro" style="font-size:var(--step-1);margin-top:1.5rem">We'll read through what you sent and email you your quote. If you didn't attach a statement, we may email to ask for one: it's the only way to give you an exact figure.</p>
-    <p style="margin-top:1.5rem">While you wait: <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">how to read your statement and work out your real rate</a>.</p>
+    <p class="thanks-estimate" data-thanks-estimate hidden>Your estimate: you could save about <strong data-thanks-saving></strong> a month. Your quote will confirm the exact figure.</p>
+    <h2 class="thanks-next">What happens next</h2>
+    <ol class="steps thanks-steps">
+      <li><h3>We read every line</h3><p>Your details, and your statement if you sent one.</p></li>
+      <li><h3>We find your cheapest option</h3><p>Across every provider we work with, for how you take payments.</p></li>
+      <li><h3>You get a written quote within 24 hours</h3><p>By email from <strong>{{ contact_email }}</strong>, in pounds per month. Check your spam folder if you don't see it.</p></li>
+    </ol>
+    <p style="margin-top:2rem">No statement attached? We may email to ask for one: it's the only way to give you an exact figure. While you wait: <a href="{{ url_for('guide', slug='how-to-read-a-merchant-statement') }}">how to read your statement and work out your real rate</a>.</p>
     <p style="margin-top:2rem"><a class="btn btn-ghost" href="{{ url_for('home') }}">Back to the homepage</a></p>
   </div>
 </section>
