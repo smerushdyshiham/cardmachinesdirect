@@ -75,6 +75,7 @@ app.config.update(
     GTM_ID=os.environ.get("GTM_ID", ""),
     GA4_ID=os.environ.get("GA4_ID", ""),
     CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "info@cardmachinesdirect.co.uk"),
+    GOOGLE_REVIEW_URL=os.environ.get("GOOGLE_REVIEW_URL", "https://g.page/r/CXUR2e0yg6tFEBM/review"),
 )
 
 if not PARTNERS_FILE.exists():
@@ -233,6 +234,21 @@ def healthz():
     with store.conn() as c:
         c.execute("SELECT 1").fetchone()
     return Response("ok", mimetype="text/plain", headers={"Cache-Control": "no-store"})
+
+
+BOT_UA = re.compile(r"bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|curl|wget|python-requests", re.I)
+
+
+@app.get("/review")
+def review():
+    """Short, trackable link to our Google review page. Use /review?from=email (or qr, whatsapp, invoice...) in
+    messages, so the admin dashboard shows which channel sends people to leave a review."""
+    source = re.sub(r"[^a-z0-9_-]", "", (request.args.get("from") or request.args.get("utm_source") or "").lower())[:40]
+    if not source:
+        source = "website" if urlparse(request.referrer or "").netloc == request.host else "direct"
+    if not BOT_UA.search(request.headers.get("User-Agent", "")):  # link previews and crawlers aren't people
+        store.add_review_click(source, bool(internal_reason()))
+    return redirect(app.config["GOOGLE_REVIEW_URL"], 302)
 
 
 @app.get("/terms")
@@ -539,7 +555,8 @@ def admin_statement(lead_id):
 # ---------------------------------------------------------------------- seo --
 @app.get("/robots.txt")
 def robots():
-    body = f"User-agent: *\nDisallow: /admin/\nDisallow: /api/\nSitemap: {app.config['SITE_URL']}/sitemap.xml\n"
+    body = (f"User-agent: *\nDisallow: /admin/\nDisallow: /api/\nDisallow: /review\n"
+            f"Sitemap: {app.config['SITE_URL']}/sitemap.xml\n")
     return Response(body, mimetype="text/plain")
 
 

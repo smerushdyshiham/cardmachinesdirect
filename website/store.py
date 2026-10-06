@@ -42,6 +42,11 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS ev_session ON events(session_id);
 CREATE INDEX IF NOT EXISTS ev_type_ts ON events(type, ts);
+CREATE TABLE IF NOT EXISTS review_clicks (
+  ts        REAL,
+  source    TEXT,
+  internal  INTEGER DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS leads (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   ts              REAL,
@@ -220,6 +225,10 @@ class Store:
                           (int(internal), "marked in admin" if internal else None, session_id))
                 c.execute("UPDATE leads SET internal=? WHERE session_id=?", (int(internal), session_id))
 
+    def add_review_click(self, source: str, internal: bool) -> None:
+        with self.conn() as c:
+            c.execute("INSERT INTO review_clicks (ts, source, internal) VALUES (?, ?, ?)", (time.time(), source, int(internal)))
+
     def lead(self, lead_id: int):
         with self.conn() as c:
             return c.execute("SELECT * FROM leads WHERE id=?", (lead_id,)).fetchone()
@@ -273,11 +282,14 @@ class Store:
                 " FROM sessions s WHERE {w} GROUP BY day ORDER BY day"
             )
             devices = q("SELECT device, COUNT(*) n FROM sessions s WHERE {w} GROUP BY device")
+            reviews = c.execute(
+                f"SELECT source, COUNT(*) n FROM review_clicks WHERE ts >= ? AND {audience_sql(audience)}"
+                " GROUP BY source ORDER BY n DESC", (since,)).fetchall()
             sources = [r[0] for r in c.execute("SELECT DISTINCT source FROM sessions ORDER BY source").fetchall()]
         return {
             "totals": dict(totals), "by_source": by_source, "campaigns": campaigns, "entries": entries,
             "exits": exits, "sections": sections, "pages": pages, "daily": daily, "devices": devices,
-            "sources": sources,
+            "sources": sources, "review_clicks": reviews,
         }
 
     def journey(self, session_id: str) -> list[sqlite3.Row]:

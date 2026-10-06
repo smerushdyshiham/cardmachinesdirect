@@ -101,6 +101,19 @@ Anywhere else (a VPS, Railway): `pip install -r requirements.txt`, then `gunicor
    - GA4 receives page views plus these events: `cmd_calc_result` (saw a saving), `cmd_cta_click` (clicked a quote button), `cmd_quote_view`, `cmd_form_start` and `cmd_form_error`. With Tag Manager instead, every site event is available in `dataLayer` as `cmd_<event>`;
    - for conversions, use page views of `/quote/thanks`. Only real submissions reach that page.
 
+## Google reviews
+
+`/review` forwards to the Google review page (`GOOGLE_REVIEW_URL`) and counts each click by source in the admin dashboard. Add `?from=` so you can tell channels apart:
+
+| Where you share it | Link |
+| --- | --- |
+| Emails / EmailBlaster | `https://cardmachinesdirect.co.uk/review?from=email` |
+| WhatsApp / text | `https://cardmachinesdirect.co.uk/review?from=whatsapp` |
+| Invoices, email signature | `https://cardmachinesdirect.co.uk/review?from=invoice` |
+| Printed QR code (`static/img/review-qr.svg` / `.png`) | already points to `/review?from=qr` |
+
+The site itself uses `homepage` and `footer`. Link previews and crawlers aren't counted, and your own clicks are internal. Google's rules: ask every customer the same way, and never offer anything in return for a review or only ask happy customers.
+
 ## Admin
 
 `/admin/` (password protected) shows:

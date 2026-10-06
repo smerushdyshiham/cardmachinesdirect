@@ -450,6 +450,29 @@ class JourneyTest(BrowserCase):
         self.calc_result(page)
         self.assertIn("£20,000", page.inner_text("#compare [data-out='shelf-sub']"))
 
+    def test_review_button_opens_google_in_a_new_tab(self):
+        page = self.new_page("phone")
+        self.go(page, "/")
+        self.decline_cookies(page)
+        # Never call Google from tests: let our /review answer (so the click is counted), note where it
+        # redirects, and stop there instead of following it.
+        seen = {}
+        def stop_at_redirect(route):
+            resp = route.fetch(max_redirects=0)
+            seen["status"], seen["location"] = resp.status, resp.headers.get("location")
+            route.fulfill(status=200, body="stopped before Google")
+        page.context.route("**/review?*", stop_at_redirect)
+        with page.context.expect_page() as new_tab:
+            page.click('[data-cta="review-homepage"]')
+        tab = new_tab.value
+        tab.wait_for_load_state()
+        self.assertIn("/review?from=homepage", tab.url, "opens in a new tab")
+        self.assertEqual((seen["status"], seen["location"]), (302, "https://g.page/r/CXUR2e0yg6tFEBM/review"))
+        self.assertTrue(page.url.endswith("/"), "the site stays open in the original tab")
+        with site.store.conn() as c:
+            row = c.execute("SELECT internal FROM review_clicks WHERE source='homepage' ORDER BY ts DESC").fetchone()
+        self.assertEqual(row["internal"], 1, "automated (our own) click is internal")
+
     def test_visitor_we_cannot_beat_is_told_honestly(self):
         page = self.new_page()
         self.go(page, "/")
