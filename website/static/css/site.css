@@ -72,7 +72,7 @@ p { margin: 0; text-wrap: pretty; }
 .wrap { width: min(100% - 2 * var(--gutter), var(--wrap)); margin-inline: auto; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--ink); color: var(--paper); padding: var(--space-3) var(--space-4); z-index: 50; }
-.skip:focus { top: var(--space-4); }
+.skip:focus { position: fixed; top: var(--space-4); } /* fixed: visible even if the page was scrolled first */
 .muted { color: var(--muted); }
 
 /* ------------------------------------------------------------------ header */
