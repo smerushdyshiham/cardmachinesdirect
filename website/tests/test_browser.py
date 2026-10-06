@@ -23,7 +23,8 @@ except ImportError:  # pragma: no cover
 AXE = (ROOT / "tests" / "vendor" / "axe.min.js").read_text(encoding="utf-8")
 PUBLIC = ["/", "/quote", "/guides/", "/privacy", "/terms", "/how-we-make-money", "/quote/thanks"] + \
          [f"/guides/{g['slug']}" for g in GUIDES]
-WIDTHS = {"desktop": (1366, 900), "tablet": (768, 1024), "phone": (390, 844), "small phone": (360, 740)}
+WIDTHS = {"desktop": (1366, 900), "tablet": (768, 1024), "phone": (390, 844), "small phone": (360, 740),
+          "iphone se": (375, 667), "tiny phone": (320, 568)}
 PDF = b"%PDF-1.4\n% test statement\n"
 
 
@@ -85,8 +86,18 @@ class BrowserCase(unittest.TestCase):
         page.wait_for_selector("[data-results]:not(.is-loading)")
         return page.locator('#compare [data-out="rows"]').inner_text()
 
+    def _banner(self, page):
+        if not page.is_visible("#consent"):  # phones: the banner waits for the first scroll
+            page.mouse.wheel(0, 200)
+            page.wait_for_selector("#consent", state="visible")
+
     def decline_cookies(self, page):
+        self._banner(page)
         page.click('[data-consent="no"]')
+
+    def accept_cookies(self, page):
+        self._banner(page)
+        page.click('[data-consent="yes"]')
 
 
 class LayoutAndQualityTest(BrowserCase):
@@ -159,6 +170,78 @@ class LayoutAndQualityTest(BrowserCase):
         self.calc_result(page)
         self.assertNotEqual(page.locator('#compare [data-input="volume-text"]').input_value(), before)
 
+    def test_saving_and_quote_button_on_the_first_screen(self):
+        """Peak-end / Fitts: the saving and the next step are visible without scrolling, on every phone size."""
+        for name in ("desktop", "phone", "small phone", "iphone se"):
+            page = self.new_page(name)
+            self.go(page, "/")
+            box = page.evaluate("""() => { const t = document.querySelector('.hero-strip .save-tag').getBoundingClientRect(),
+                c = document.querySelector('.strip-cta .btn').getBoundingClientRect(), b = document.getElementById('consent');
+                const bannerTop = b && !b.hidden ? b.getBoundingClientRect().top : innerHeight;
+                const clash = [...document.querySelectorAll('.strip-price *')].some(e => { const r = e.getBoundingClientRect();
+                    return r.width && r.right > t.left + 2 && r.left < t.right && r.bottom > t.top && r.top < t.bottom; });
+                return {tag: t.bottom, cta: c.bottom, ctaRight: c.right, bannerTop, bannerRight: b && !b.hidden ? b.getBoundingClientRect().right : 0, vh: innerHeight, clash}; }""")
+            with self.subTest(width=name):
+                self.assertLessEqual(box["tag"], min(box["vh"], box["bannerTop"]), "saving below the fold or under the banner")
+                self.assertLessEqual(box["cta"], box["vh"], "quote button below the fold")
+                if box["cta"] > box["bannerTop"]:
+                    self.assertGreater(box["ctaRight"] - 250, box["bannerRight"], "quote button hidden under the banner")
+                self.assertFalse(box["clash"], "price text runs under the saving tag")
+
+    def test_hero_quote_button_carries_takings(self):
+        page = self.new_page("phone")
+        self.go(page, "/")
+        page.evaluate("""() => { const s = document.querySelector('#hero-volume'); s.value = 700; s.dispatchEvent(new Event('input', {bubbles: true})); }""")
+        self.calc_result(page)
+        page.click(".strip-cta .btn")
+        page.wait_for_url("**/quote**")
+        self.assertRegex(page.url, r"volume=\d+")
+        self.assertNotEqual(page.input_value("#f-monthly_volume"), "")
+
+    def test_controls_are_at_least_44px(self):
+        """Fitts: every control (not links inside sentences) is a comfortable tap target on a phone."""
+        for path in ("/", "/quote", "/guides/card-machine-fees"):
+            page = self.new_page("phone")
+            self.go(page, path)
+            self.decline_cookies(page)
+            page.evaluate("document.querySelectorAll('details').forEach(d => d.open = true)")
+            small = page.evaluate("""() => [...document.querySelectorAll('.btn, details.more > summary, .faq summary, .choice, .nav a, .strip-foot a, .shelf li[tabindex], input[type=range]')]
+                .filter(e => e.offsetParent).map(e => [e.innerText.trim().slice(0, 30) || e.className, Math.round(e.getBoundingClientRect().height)])
+                .filter(([, h]) => h < 44 && h > 0).filter(([t]) => !String(t).includes('range'))""")
+            with self.subTest(path=path):
+                self.assertEqual(small, [])
+
+    def test_competitor_notes_open_on_tap(self):
+        page = self.new_page("phone")
+        self.go(page, "/")
+        self.decline_cookies(page)
+        self.calc_result(page)
+        row = page.locator('#compare [data-out="rows"] li[tabindex]').first
+        row.focus()
+        page.wait_for_timeout(400)  # the note fades in
+        self.assertEqual(page.evaluate("getComputedStyle(document.activeElement.querySelector('.tip')).opacity"), "1")
+
+    def test_takings_accept_k_shorthand(self):
+        page = self.new_page()
+        self.go(page, "/")
+        self.decline_cookies(page)
+        page.fill('#compare [data-input="volume-text"]', "12.5k")
+        self.calc_result(page)
+        self.assertIn("£12,500", page.inner_text("#compare [data-out='shelf-sub']"))
+
+    def test_thank_you_page_recaps_estimate_and_next_steps(self):
+        page = self.new_page("phone")
+        self.go(page, "/")
+        page.evaluate("sessionStorage.setItem('cmd-last-saving', '104.6')")
+        self.go(page, "/quote/thanks")
+        text = page.inner_text("main")
+        self.assertIn("save about £105 a month", text)
+        self.assertIn("within 24 hours", text)
+        self.assertIn("What happens next", text)
+        fresh = self.new_page("phone")
+        self.go(fresh, "/quote/thanks")
+        self.assertFalse(fresh.is_visible("[data-thanks-estimate]"), "no estimate shown if there wasn't one")
+
     def test_page_weight_and_speed_on_mobile_4g(self):
         for path in ("/", "/guides/card-machine-fees", "/quote"):
             page = self.new_page("phone")
@@ -200,7 +283,7 @@ class ConsentTest(BrowserCase):
     def test_accepting_loads_marketing_code_on_every_page(self):
         page = self.new_page()
         self.go(page, "/")
-        page.click('[data-consent="yes"]')
+        self.accept_cookies(page)
         self.assertTrue(page.evaluate("!!window.__marketingLoaded"))
         self.go(page, "/terms")
         self.assertTrue(page.evaluate("!!window.__marketingLoaded"))
@@ -218,7 +301,7 @@ class ConsentTest(BrowserCase):
         self.assertEqual(sent, [], "events sent before consent")
         self.assertIsNone(page.evaluate("localStorage.getItem('cmd-vid')"), "visitor ID stored before consent")
         self.assertIn("count your visits", page.inner_text("#consent"))
-        page.click('[data-consent="yes"]')
+        self.accept_cookies(page)
         page.wait_for_timeout(500)
         self.assertTrue(sent, "events should be sent once the visitor agrees")
         self.assertIsNotNone(page.evaluate("localStorage.getItem('cmd-vid')"))
@@ -233,7 +316,7 @@ class ConsentTest(BrowserCase):
         self.go(page, "/")
         self.assertEqual(google, [], "Google tag loaded before consent")
         self.assertFalse(page.evaluate("typeof window.gtag === 'function'"))
-        page.click('[data-consent="yes"]')
+        self.accept_cookies(page)
         page.wait_for_timeout(300)
         self.assertTrue(any("id=G-TEST123" in u for u in google), "Google tag should load after consent")
         page.evaluate("""() => { const s = document.querySelector('#compare [data-input="volume-slider"]');
@@ -250,7 +333,7 @@ class ConsentTest(BrowserCase):
         self.assertIsNone(page.evaluate("localStorage.getItem('cmd-touch')"), "30-day campaign memory stored before consent")
         attrib = json.loads(page.evaluate("sessionStorage.getItem('cmd-attrib')"))
         self.assertEqual(attrib["campaign"], "consent-check", "this visit is still credited to the campaign")
-        page.click('[data-consent="yes"]')
+        self.accept_cookies(page)
         touch = json.loads(page.evaluate("localStorage.getItem('cmd-touch')"))
         self.assertEqual(touch["campaign"], "consent-check")
         page.context.clear_cookies()
@@ -270,6 +353,17 @@ class ConsentTest(BrowserCase):
             row = c.execute("SELECT internal, internal_reason FROM sessions WHERE session_id=?", (sid,)).fetchone()
         self.assertEqual((row["internal"], row["internal_reason"]), (1, "automated browser"))
 
+    def test_phone_banner_waits_for_first_scroll(self):
+        page = self.new_page("phone")
+        self.go(page, "/")
+        self.assertFalse(page.is_visible("#consent"), "banner covers the calculator result on first view")
+        self.assertFalse(page.evaluate("!!window.__marketingLoaded"), "nothing needing consent loads meanwhile")
+        page.mouse.wheel(0, 200)
+        page.wait_for_selector("#consent", state="visible")
+        desktop = self.new_page("desktop")
+        self.go(desktop, "/")
+        self.assertTrue(desktop.is_visible("#consent"), "desktop shows it straight away")
+
     def test_privacy_opt_out_stops_counting(self):
         page = self.new_page()
         self.go(page, "/privacy")
@@ -287,7 +381,7 @@ class JourneyTest(BrowserCase):
     def test_email_campaign_visitor_gets_a_quote_with_statement(self):
         page = self.new_page("phone")
         self.go(page, "/?utm_source=emailblaster&utm_medium=email&utm_campaign=e2e-test")
-        page.click('[data-consent="yes"]')
+        self.accept_cookies(page)
         self.assertTrue(page.evaluate("!!window.__marketingLoaded"), "EmailBlaster code loads after consent")
 
         # Move the main slider: a loading state shows, then a saving headline.

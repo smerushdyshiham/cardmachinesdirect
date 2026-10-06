@@ -85,7 +85,7 @@ Live at **https://cardmachinesdirect.co.uk**, on Render, deploying from GitHub. 
 ## How a change ships
 
 1. Make a branch. `main` is protected by a GitHub ruleset: no direct pushes, a pull request is required, and the **Tests** check must pass. This was verified by a rejected push.
-2. Make the change, then run `python -m unittest discover -s tests` from `website/`. There are 61 tests, about 2 minutes, including Playwright browser tests (`python -m playwright install chromium` once).
+2. Make the change, then run `python -m unittest discover -s tests` from `website/`. There are 81 tests, about 2 minutes, including Playwright browser tests (`python -m playwright install chromium` once).
 3. Commit, push the branch, and give Rushdy the `pull/new/<branch>` link. There's no `gh` CLI on this machine. Rushdy opens and merges the pull request.
 4. GitHub Actions (`.github/workflows/tests.yml`) runs the tests, plus a guard that fails if confidential files or partner names are tracked.
 5. Render auto-deploys `main` after the checks pass (`autoDeployTrigger: checksPass`).
@@ -118,6 +118,16 @@ Live at **https://cardmachinesdirect.co.uk**, on Render, deploying from GitHub. 
   - first-party visit counting runs without consent, under the UK statistics exemption (Data (Use and Access) Act 2025 s.123, in force 5 Feb 2026), with an opt-out link in the banner and on the privacy page;
   - GA4, EmailBlaster and the 30-day campaign memory (`cmd-touch`) only run after "That's fine";
   - `ANALYTICS_CONSENT_REQUIRED=1` switches to fully consent-first if ever needed.
+
+## UX rules (from the laws-of-UX review, 6 Oct 2026)
+
+- **First screen:** on every phone from 320px up, the saving tag and the hero **Get my exact quote** button must be visible without scrolling. Tests enforce this at 4 sizes.
+- **Cookie banner on phones (520px and under):** waits for the first scroll, or 20 seconds, so it doesn't cover the result. Nothing that needs consent loads before an answer.
+- **Labels:** exactly two, everywhere. **Compare my fees** (calculator) and **Get my exact quote** (quote form; "Get my quote" in the header on phones). The form's own button is "Send for my quote".
+- **Tap targets:** every control is at least 44px tall. Competitor notes in the chart open on tap or focus, not just hover.
+- **Input:** amounts accept "£10,000", "10k", "£10.5k", "1.2%" and "4p" (`parse_number` in `app.py`, `parseMoney` in `calculator.js`).
+- **Thank-you page:** recaps the visitor's estimate, lists 3 next steps, and promises a reply **within 24 hours** (Rushdy's commitment). There's deliberately **no** confirmation email to the customer.
+- **Calculator timing:** about 850ms from input to result (280ms debounce plus a 450ms minimum loading state). Rushdy chose to keep it rather than speed it up to under 400ms.
 
 ## Security and robustness already in place
 

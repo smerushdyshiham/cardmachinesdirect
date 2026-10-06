@@ -22,7 +22,11 @@
     const step = v < 2000 ? 50 : v < 10000 ? 100 : v < 50000 ? 500 : 1000;
     return Math.round(v / step) * step;
   }
-  const parseMoney = (s) => parseFloat(String(s).replace(/[£,\s]/g, ""));
+  // Accepts "10000", "£10,000", "10k", "£10.5k", "1.2m".
+  const parseMoney = (s) => {
+    const m = String(s).replace(/[£,\s]/g, "").toLowerCase().match(/^(\d*\.?\d+)([km]?)$/);
+    return m ? parseFloat(m[1]) * ({ k: 1e3, m: 1e6 }[m[2]] || 1) : NaN;
+  };
 
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const outs = (name) => $$(`[data-out="${name}"]`);
@@ -170,14 +174,15 @@
     outs("rows").forEach((ol) => {
       const prev = {};
       $$("li", ol).forEach((li) => { prev[li.dataset.key] = li.querySelector(".bar i").style.width; });
-      ol.innerHTML = rows.map((r) => {
+      ol.innerHTML = rows.map((r, i) => {
         const key = r.kind + ":" + r.name;
-        const tip = r.note ? ` data-tip="1"` : "";
+        // tabindex: on phones there's no hover, so a tap (focus) opens the note.
+        const tip = r.note ? ` data-tip="1" tabindex="0" aria-describedby="tip-${i}"` : "";
         return `<li class="${r.kind}" data-key="${esc(key)}"${tip}>
           <div class="who"><strong>${esc(r.name)}</strong><span>${esc(r.plan)}</span></div>
           <div class="bar" aria-hidden="true"><i style="width:${prev[key] || "0%"}" data-w="${(r.monthly / top * 100).toFixed(1)}%"></i></div>
           <div class="cost"><strong>${gbp2.format(r.monthly)}</strong><span>${r.per_100 != null ? gbp2.format(r.per_100) + " per £100" : "est., before your statement"}</span></div>
-          ${r.note ? `<span class="tip" role="tooltip">${esc(r.note)}</span>` : ""}
+          ${r.note ? `<span class="tip" role="tooltip" id="tip-${i}">${esc(r.note)}</span>` : ""}
         </li>`;
       }).join("");
       requestAnimationFrame(() => requestAnimationFrame(() => {

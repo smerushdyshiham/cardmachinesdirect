@@ -600,14 +600,25 @@ def _validate_quote(form):
         errors["knows_fees"] = "Pick one, even if it's 'no idea'."
     for key in ("debit_pct", "credit_pct", "auth_p", "monthly_fee", "monthly_volume"):
         if values[key]:
-            try:
-                n = float(values[key].replace(",", "").lstrip("£"))
-                if not math.isfinite(n) or n < 0:
-                    raise ValueError
-                values[key] = values[key].replace(",", "").lstrip("£")
-            except ValueError:
+            n = parse_number(values[key], allow_k=key in ("monthly_fee", "monthly_volume"))
+            if n is None:
                 errors[key] = "Numbers only, please."
+            else:
+                values[key] = f"{n:g}"
     return errors, values
+
+
+NUMBER_RE = re.compile(r"^(\d*\.?\d+)([km]?)$")
+
+
+def parse_number(text: str, allow_k: bool = False) -> float | None:
+    """Be liberal in what we accept: "£10,000", "10k", "£10.5k", "1.2%", "4p" and " 20 " all work."""
+    cleaned = re.sub(r"[£,%\s]|p$", "", str(text).strip().lower())
+    m = NUMBER_RE.match(cleaned)
+    if not m or (m.group(2) and not allow_k):
+        return None
+    n = float(m.group(1)) * {"k": 1e3, "m": 1e6}.get(m.group(2), 1)
+    return n if math.isfinite(n) else None
 
 
 def _save_statement(upload):

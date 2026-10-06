@@ -46,7 +46,7 @@
           </select>
         </div>
         <div class="field {{ 'has-error' if errors.monthly_volume }}"><label for="f-monthly_volume">Monthly card takings <span class="opt">(roughly)</span></label>
-          <div class="affix" style="border-width:1.5px"><span>£</span><input type="text" inputmode="numeric" id="f-monthly_volume" name="monthly_volume" value="{{ values.get('monthly_volume', values.get('volume', '')) }}" style="min-height:44px" {{ described('monthly_volume') }}></div>{{ err('monthly_volume') }}</div>
+          <div class="affix" style="border-width:1.5px"><span>£</span><input type="text" inputmode="text" id="f-monthly_volume" placeholder="e.g. 8,000 or 8k" name="monthly_volume" value="{{ values.get('monthly_volume', values.get('volume', '')) }}" style="min-height:44px" {{ described('monthly_volume') }}></div>{{ err('monthly_volume') }}</div>
       </div>
     </fieldset>
 
@@ -159,18 +159,23 @@
   var form = document.getElementById("quote-form"), submitBtn = form.querySelector('button[type="submit"]');
   var MAX_BYTES = 10 * 1024 * 1024, OK_EXT = /\.(pdf|png|jpe?g|webp|heic)$/i, EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   var val = function (n) { var el = form.elements[n]; return el ? String(el.value || "").trim() : ""; };
-  var num = function (v) { var n = Number(v.replace(/[£,]/g, "")); return v === "" || (isFinite(n) && n >= 0); };
+  // Same liberal rules as the server: "£10,000", "10k", "1.2%" and "4p" are all fine.
+  var num = function (v, allowK) {
+    if (v === "") return true;
+    var m = v.replace(/[£,%\s]|p$/gi, "").toLowerCase().match(/^(\d*\.?\d+)([km]?)$/);
+    return !!m && (allowK || !m[2]);
+  };
   var rules = [
     ["name", function () { return val("name") ? "" : "Tell us your name so we know who to ask for."; }],
     ["business", function () { return val("business") ? "" : "Add your business name."; }],
     ["email", function () { return EMAIL.test(val("email")) ? "" : "That email doesn't look right. Check for a typo."; }],
     ["phone", function () { var d = val("phone").replace(/\D/g, ""); return !val("phone") || (d.length >= 10 && d.length <= 13) ? "" : "Enter a UK phone number, or leave it blank."; }],
-    ["monthly_volume", function () { return num(val("monthly_volume")) ? "" : "Numbers only, please."; }],
+    ["monthly_volume", function () { return num(val("monthly_volume"), true) ? "" : "Numbers only, please."; }],
     ["knows_fees", function () { return form.querySelector('input[name="knows_fees"]:checked') ? "" : "Pick one, even if it's 'no idea'."; }],
     ["debit_pct", function () { return num(val("debit_pct")) ? "" : "Numbers only, please."; }],
     ["credit_pct", function () { return num(val("credit_pct")) ? "" : "Numbers only, please."; }],
     ["auth_p", function () { return num(val("auth_p")) ? "" : "Numbers only, please."; }],
-    ["monthly_fee", function () { return num(val("monthly_fee")) ? "" : "Numbers only, please."; }],
+    ["monthly_fee", function () { return num(val("monthly_fee"), true) ? "" : "Numbers only, please."; }],
     ["statement", function () {
       var f = input.files && input.files[0];
       if (!f) return "";

@@ -260,6 +260,28 @@ class SecurityAndSeoTest(unittest.TestCase):
 
 
 
+class LiberalInputTest(unittest.TestCase):
+    """Postel's law: accept the ways people actually type amounts."""
+
+    def test_parse_number(self):
+        ok = {("10000", True): 10000, ("£10,000", True): 10000, ("10k", True): 10000, ("£10.5K", True): 10500,
+              ("1.2m", True): 1200000, (" 20 ", False): 20, ("1.2%", False): 1.2, ("4p", False): 4, ("0.5", False): 0.5}
+        for (text, allow_k), want in ok.items():
+            with self.subTest(text=text):
+                self.assertEqual(site.parse_number(text, allow_k), want)
+        for text, allow_k in (("10k", False), ("ten", True), ("nan", True), ("1e9", True), ("-5", True), ("", True)):
+            with self.subTest(text=text):
+                self.assertIsNone(site.parse_number(text, allow_k))
+
+    def test_quote_form_accepts_k_and_stores_plain_numbers(self):
+        site._hits.clear()
+        form = {"name": "K", "business": "Ten K Ltd", "email": "k@example.com", "knows_fees": "yes", "ft": _token(),
+                "monthly_volume": "£10k", "debit_pct": "1.2%", "auth_p": "4p", "monthly_fee": "£20"}
+        self.assertEqual(site.app.test_client().post("/quote", data=form).status_code, 302)
+        lead = next(l for l in site.store.leads(0) if l["business"] == "Ten K Ltd")
+        self.assertEqual((lead["monthly_volume"], lead["debit_pct"], lead["auth_p"], lead["monthly_fee"]), ("10000", "1.2", "4", "20"))
+
+
 class LeadEmailTest(unittest.TestCase):
     """Lead alerts: right security mode for the port, sent in the background, never delaying the visitor."""
 
@@ -478,6 +500,14 @@ class ContentQualityTest(unittest.TestCase):
         for path in ("/privacy", "/terms"):
             with self.subTest(path=path):
                 self.assertNotIn("needs a final check", self.html[path])
+
+    def test_one_label_per_action(self):
+        """Law of similarity: the same action is always called the same thing."""
+        labels = set()
+        for h in self.html.values():
+            labels |= {re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", m)).strip() for m in re.findall(r'class="btn[^"]*"[^>]*>(.*?)</(?:a|button)>', h, re.S)}
+        quote_and_calc = {l for l in labels if "quote" in l.lower() or "compare" in l.lower()}
+        self.assertLessEqual(quote_and_calc, {"Get my exact quote", "Get my quote", "Compare my fees", "Send for my quote"}, quote_and_calc)
 
     def test_internal_links_and_anchors_resolve(self):
         checked = {}
