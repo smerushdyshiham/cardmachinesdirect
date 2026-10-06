@@ -72,7 +72,7 @@ p { margin: 0; text-wrap: pretty; }
 .wrap { width: min(100% - 2 * var(--gutter), var(--wrap)); margin-inline: auto; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--ink); color: var(--paper); padding: var(--space-3) var(--space-4); z-index: 50; }
-.skip:focus { top: var(--space-4); }
+.skip:focus { position: fixed; top: var(--space-4); } /* fixed: visible even if the page was scrolled first */
 .muted { color: var(--muted); }
 
 /* ------------------------------------------------------------------ header */
@@ -213,6 +213,24 @@ p { margin: 0; text-wrap: pretty; }
   .strip-tag { padding: 0 var(--space-4) var(--space-4); justify-content: flex-start; }
   .site-header .wordmark { font-size: 1rem; }
   .site-header .btn { padding: 0 var(--space-3); }
+}
+@media (max-width: 340px) and (max-height: 700px) {
+  /* Tiny, short screens (original iPhone SE): drop the struck-through comparison line and tighten,
+     so the saving and the quote button still fit on the first screen. The tag says what it compares against. */
+  .hero { padding-top: var(--space-3); }
+  .hero h1 { font-size: 1.85rem; }
+  .hero-strip { margin-top: var(--space-3); }
+  .strip-price .row-was { display: none; }
+  .strip-price { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+  .strip-price .price { font-size: 2rem; }
+  .strip-tag { padding-bottom: var(--space-3); }
+  .hero-strip .save-tag .price { font-size: 1.8rem; }
+  .strip-cta { padding-top: var(--space-2); padding-bottom: var(--space-3); }
+  /* With the comparison line gone there's room for the tag beside the price again. */
+  .hero-strip .label-stock { grid-template-columns: minmax(0, 1fr) auto; }
+  .strip-price { padding-right: var(--space-1); }
+  .strip-tag { padding: var(--space-3) var(--space-3) var(--space-3) 0; justify-content: flex-end; }
+  .hero-strip .save-tag { margin-left: 0; }
 }
 @media (max-width: 520px) and (max-height: 760px) {
   /* Short phones (iPhone SE and similar): tighter still, so the saving and the quote button fit on screen. */

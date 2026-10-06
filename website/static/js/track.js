@@ -45,15 +45,11 @@
   const onGrant = [];
   if (consent === "yes") grantMarketing();
   else if (!consent && banner) {
-    // On phones the banner would cover the calculator result and quote button on the first screen, so it
-    // waits for the first scroll (or 20 seconds). Nothing that needs consent loads before an answer either way.
-    if (window.matchMedia("(max-width: 520px)").matches) {
-      const show = () => { banner.hidden = false; removeEventListener("scroll", show); clearTimeout(t); };
-      const t = setTimeout(show, 20000);
-      addEventListener("scroll", show, { passive: true, once: true });
-    } else {
-      banner.hidden = false;
-    }
+    // On every screen size the banner would cover the calculator result or the hero quote button, so it waits
+    // for the first scroll (or 20 seconds). Nothing that needs consent loads before an answer either way.
+    const show = () => { banner.hidden = false; removeEventListener("scroll", show); clearTimeout(t); };
+    const t = setTimeout(show, 20000);
+    addEventListener("scroll", show, { passive: true, once: true });
   }
   if (banner) banner.addEventListener("click", (e) => {
     const choice = e.target.closest("[data-consent]");
