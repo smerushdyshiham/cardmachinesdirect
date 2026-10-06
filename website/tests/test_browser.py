@@ -87,7 +87,7 @@ class BrowserCase(unittest.TestCase):
         return page.locator('#compare [data-out="rows"]').inner_text()
 
     def _banner(self, page):
-        if not page.is_visible("#consent"):  # phones: the banner waits for the first scroll
+        if not page.is_visible("#consent"):  # the banner waits for the first scroll
             page.mouse.wheel(0, 200)
             page.wait_for_selector("#consent", state="visible")
 
@@ -172,7 +172,7 @@ class LayoutAndQualityTest(BrowserCase):
 
     def test_saving_and_quote_button_on_the_first_screen(self):
         """Peak-end / Fitts: the saving and the next step are visible without scrolling, on every phone size."""
-        for name in ("desktop", "phone", "small phone", "iphone se"):
+        for name in ("desktop", "tablet", "phone", "small phone", "iphone se", "tiny phone"):
             page = self.new_page(name)
             self.go(page, "/")
             box = page.evaluate("""() => { const t = document.querySelector('.hero-strip .save-tag').getBoundingClientRect(),
@@ -272,12 +272,15 @@ class ConsentTest(BrowserCase):
     def test_declining_keeps_marketing_code_off(self):
         page = self.new_page()
         self.go(page, "/")
+        self._banner(page)  # appears on first scroll
         self.assertTrue(page.is_visible("#consent"))
         self.assertFalse(page.evaluate("!!window.__marketingLoaded"), "marketing code ran before consent")
         self.decline_cookies(page)
         self.assertFalse(page.is_visible("#consent"))
         self.go(page, "/guides/")
-        self.assertFalse(page.is_visible("#consent"), "banner should remember the choice")
+        page.mouse.wheel(0, 300)
+        page.wait_for_timeout(300)
+        self.assertFalse(page.is_visible("#consent"), "banner should remember the choice, even after scrolling")
         self.assertFalse(page.evaluate("!!window.__marketingLoaded"))
 
     def test_accepting_loads_marketing_code_on_every_page(self):
@@ -353,16 +356,15 @@ class ConsentTest(BrowserCase):
             row = c.execute("SELECT internal, internal_reason FROM sessions WHERE session_id=?", (sid,)).fetchone()
         self.assertEqual((row["internal"], row["internal_reason"]), (1, "automated browser"))
 
-    def test_phone_banner_waits_for_first_scroll(self):
-        page = self.new_page("phone")
-        self.go(page, "/")
-        self.assertFalse(page.is_visible("#consent"), "banner covers the calculator result on first view")
-        self.assertFalse(page.evaluate("!!window.__marketingLoaded"), "nothing needing consent loads meanwhile")
-        page.mouse.wheel(0, 200)
-        page.wait_for_selector("#consent", state="visible")
-        desktop = self.new_page("desktop")
-        self.go(desktop, "/")
-        self.assertTrue(desktop.is_visible("#consent"), "desktop shows it straight away")
+    def test_banner_waits_for_first_scroll(self):
+        for width in ("phone", "tablet", "desktop"):
+            page = self.new_page(width)
+            self.go(page, "/")
+            with self.subTest(width=width):
+                self.assertFalse(page.is_visible("#consent"), "banner covers the result or quote button on first view")
+                self.assertFalse(page.evaluate("!!window.__marketingLoaded"), "nothing needing consent loads meanwhile")
+                page.mouse.wheel(0, 200)
+                page.wait_for_selector("#consent", state="visible")
 
     def test_privacy_opt_out_stops_counting(self):
         page = self.new_page()

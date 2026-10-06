@@ -121,8 +121,8 @@ Live at **https://cardmachinesdirect.co.uk**, on Render, deploying from GitHub. 
 
 ## UX rules (from the laws-of-UX review, 6 Oct 2026)
 
-- **First screen:** on every phone from 320px up, the saving tag and the hero **Get my exact quote** button must be visible without scrolling. Tests enforce this at 4 sizes.
-- **Cookie banner on phones (520px and under):** waits for the first scroll, or 20 seconds, so it doesn't cover the result. Nothing that needs consent loads before an answer.
+- **First screen:** at every size from a 320 × 568 phone to desktop (tablets included), the saving tag and the hero **Get my exact quote** button must be visible without scrolling and not under the cookie banner. Tests enforce this at 6 sizes.
+- **Cookie banner:** on every screen size it waits for the first scroll, or 20 seconds, so it never covers the result or the quote button. Nothing that needs consent loads before an answer. On 320px-wide short screens the struck-through competitor price line is hidden, so the hero fits.
 - **Labels:** exactly two, everywhere. **Compare my fees** (calculator) and **Get my exact quote** (quote form; "Get my quote" in the header on phones). The form's own button is "Send for my quote".
 - **Tap targets:** every control is at least 44px tall. Competitor notes in the chart open on tap or focus, not just hover.
 - **Input:** amounts accept "£10,000", "10k", "£10.5k", "1.2%" and "4p" (`parse_number` in `app.py`, `parseMoney` in `calculator.js`).
