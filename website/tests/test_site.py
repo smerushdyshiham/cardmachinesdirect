@@ -260,6 +260,67 @@ class SecurityAndSeoTest(unittest.TestCase):
 
 
 
+class GoogleReviewTest(unittest.TestCase):
+    """/review: a short, trackable link to the Google review page."""
+    GOOGLE = "https://g.page/r/CXUR2e0yg6tFEBM/review"
+    BROWSER = {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Safari/604.1"}
+
+    def _clicks(self, source):
+        with site.store.conn() as c:
+            return c.execute("SELECT COUNT(*), MAX(internal) FROM review_clicks WHERE source=?", (source,)).fetchone()
+
+    def test_redirects_to_google_and_counts_by_source(self):
+        c = site.app.test_client()
+        r = c.get("/review?from=Email", headers=self.BROWSER)
+        self.assertEqual((r.status_code, r.headers["Location"]), (302, self.GOOGLE))
+        c.get("/review?utm_source=whatsapp", headers=self.BROWSER)
+        c.get("/review", headers=self.BROWSER)
+        c.get("/review", headers={**self.BROWSER, "Referer": "http://localhost/guides/"})
+        self.assertEqual(self._clicks("email")[0], 1)
+        self.assertEqual(self._clicks("whatsapp")[0], 1)
+        self.assertGreaterEqual(self._clicks("direct")[0], 1)
+        self.assertGreaterEqual(self._clicks("website")[0], 1)
+        self.assertEqual(self._clicks("<script>")[0], 0)
+        c.get("/review?from=<script>x", headers=self.BROWSER)
+        self.assertEqual(self._clicks("scriptx")[0], 1, "source is sanitised")
+
+    def test_link_previews_and_bots_are_not_counted(self):
+        c = site.app.test_client()
+        for ua in ("WhatsApp/2.23", "Googlebot/2.1", "facebookexternalhit/1.1", "Slackbot-LinkExpanding", "curl/8.4"):
+            with self.subTest(ua=ua):
+                r = c.get("/review?from=bots", headers={"User-Agent": ua})
+                self.assertEqual(r.status_code, 302, "still redirects")
+        self.assertEqual(self._clicks("bots")[0], 0)
+
+    def test_our_own_clicks_are_internal(self):
+        c = site.app.test_client()
+        c.get("/admin/", headers=AUTH)  # marks this browser as ours
+        c.get("/review?from=mine", headers=self.BROWSER)
+        self.assertEqual(tuple(self._clicks("mine")), (1, 1))
+        real = {r["source"]: r["n"] for r in site.store.report(0)["review_clicks"]}
+        self.assertNotIn("mine", real, "hidden from the default (real) view")
+
+    def test_links_on_site_open_google_in_a_new_tab_and_robots_skip_them(self):
+        c = site.app.test_client()
+        home = c.get("/").get_data(as_text=True)
+        terms = c.get("/terms").get_data(as_text=True)
+        self.assertRegex(home, r'href="/review\?from=homepage" target="_blank" rel="noopener nofollow"')
+        self.assertRegex(terms, r'href="/review\?from=footer" target="_blank" rel="noopener nofollow"')
+        self.assertIn("Good or bad, we want to hear it.", home)  # asks everyone: no review gating
+        self.assertIn("Disallow: /review", c.get("/robots.txt").get_data(as_text=True))
+        self.assertNotIn("/review", c.get("/sitemap.xml").get_data(as_text=True))
+
+    def test_admin_shows_review_clicks_and_qr_code(self):
+        c = site.app.test_client()
+        c.get("/review?from=invoice", headers=self.BROWSER)
+        html = c.get("/admin/", headers=AUTH).get_data(as_text=True)
+        self.assertIn("Google review link clicks", html)
+        self.assertIn("invoice", html)
+        for f in ("review-qr.svg", "review-qr.png"):
+            with self.subTest(file=f), c.get(f"/static/img/{f}") as r:
+                self.assertEqual(r.status_code, 200)
+
+
 class LiberalInputTest(unittest.TestCase):
     """Postel's law: accept the ways people actually type amounts."""
 
